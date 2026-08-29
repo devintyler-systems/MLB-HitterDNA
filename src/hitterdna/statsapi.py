@@ -48,6 +48,13 @@ class GameContext:
     probable_home_pitcher_name: str | None
     game_status: str | None
     pregame_eligibility: PregameEligibility
+    scheduled_start_utc: str | None = None
+    away_team_id: int | None = None
+    away_team_name: str | None = None
+    home_team_id: int | None = None
+    home_team_name: str | None = None
+    probable_away_pitcher_throws: str | None = None
+    probable_home_pitcher_throws: str | None = None
 
 
 @dataclass
@@ -98,6 +105,11 @@ class StatsAPIClient:
         ]
         return matches[0] if len(matches) == 1 else None
 
+    def fetch_game_contexts(self, date: str) -> tuple[GameContext, ...]:
+        """Fetch and normalize every scheduled game independently by event key."""
+
+        return normalize_schedule_contexts(self.fetch_schedule(date))
+
 
 def normalize_game_context(payload: Mapping[str, Any]) -> GameContext:
     """Normalize one raw Stats API ``game`` object without making HTTP calls."""
@@ -124,7 +136,20 @@ def normalize_game_context(payload: Mapping[str, Any]) -> GameContext:
         probable_home_pitcher_name=_string(home_pitcher.get("fullName")),
         game_status=game_status,
         pregame_eligibility=classify_pregame_eligibility(game_status),
+        scheduled_start_utc=_string(payload.get("gameDate")),
+        away_team_id=_team_id(away),
+        away_team_name=_team_full_name(away),
+        home_team_id=_team_id(home),
+        home_team_name=_team_full_name(home),
+        probable_away_pitcher_throws=_pitcher_throws(away_pitcher),
+        probable_home_pitcher_throws=_pitcher_throws(home_pitcher),
     )
+
+
+def normalize_schedule_contexts(payload: Mapping[str, Any]) -> tuple[GameContext, ...]:
+    """Normalize every Stats API schedule event without team/date deduplication."""
+
+    return tuple(normalize_game_context(game) for game in _schedule_games(payload))
 
 
 def classify_pregame_eligibility(game_status: str | None) -> PregameEligibility:
@@ -168,6 +193,18 @@ def _team_matches(game: Mapping[str, Any], side: str, requested_team: str) -> bo
 def _team_name(side: Mapping[str, Any]) -> str | None:
     team = _as_mapping(side.get("team"))
     return _string(team.get("abbreviation") or team.get("name"))
+
+
+def _team_id(side: Mapping[str, Any]) -> int | None:
+    return _positive_integer(_as_mapping(side.get("team")).get("id"))
+
+
+def _team_full_name(side: Mapping[str, Any]) -> str | None:
+    return _string(_as_mapping(side.get("team")).get("name"))
+
+
+def _pitcher_throws(pitcher: Mapping[str, Any]) -> str | None:
+    return _string(_as_mapping(pitcher.get("pitchHand")).get("code"))
 
 
 def _analysis_date(payload: Mapping[str, Any]) -> str | None:

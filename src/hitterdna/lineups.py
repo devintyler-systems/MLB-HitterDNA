@@ -39,6 +39,16 @@ class TeamLineup:
 
 
 @dataclass(frozen=True)
+class ProbablePitcher:
+    """Source-supplied probable-pitcher details from a Stats API game feed."""
+
+    player_mlbam_id: int | None
+    player_name: str | None
+    throws: str | None
+    status: Literal["probable", "unresolved"]
+
+
+@dataclass(frozen=True)
 class GameLineups:
     game_pk: int | None
     away_lineup: TeamLineup
@@ -47,6 +57,8 @@ class GameLineups:
     retrieved_at_utc: str
     pregame_eligibility: PregameEligibility
     lineup_fetch_status: LineupFetchStatus
+    away_probable_pitcher: ProbablePitcher = ProbablePitcher(None, None, None, "unresolved")
+    home_probable_pitcher: ProbablePitcher = ProbablePitcher(None, None, None, "unresolved")
 
 
 @dataclass(frozen=True)
@@ -60,7 +72,10 @@ HttpGet = Callable[..., Any]
 
 
 def fetch_game_lineups(
-    game_context: GameContext, http_get: HttpGet = requests.get
+    game_context: GameContext,
+    http_get: HttpGet = requests.get,
+    *,
+    retrieved_at_utc: str | None = None,
 ) -> GameLineups:
     """Fetch lineups only for pregame-refresh-eligible schedule events.
 
@@ -69,7 +84,7 @@ def fetch_game_lineups(
     ``normalize_game_lineups`` function.
     """
 
-    retrieved_at_utc = _utc_now()
+    retrieved_at_utc = retrieved_at_utc or _utc_now()
     source_url = game_feed_url(game_context.game_pk)
     if game_context.pregame_eligibility not in {"eligible_refresh", "urgent_refresh"}:
         return _empty_game_lineups(
@@ -160,6 +175,8 @@ def normalize_game_lineups(
         retrieved_at_utc=retrieved_at_utc,
         pregame_eligibility=game_context.pregame_eligibility,
         lineup_fetch_status="fetched",
+        away_probable_pitcher=_probable_pitcher_from_feed(payload, "away"),
+        home_probable_pitcher=_probable_pitcher_from_feed(payload, "home"),
     )
 
 
@@ -306,6 +323,26 @@ def _empty_game_lineups(
         retrieved_at_utc=retrieved_at_utc,
         pregame_eligibility=game_context.pregame_eligibility,
         lineup_fetch_status=lineup_fetch_status,
+    )
+
+
+def _probable_pitcher_from_feed(
+    payload: Mapping[str, Any], side: str
+) -> ProbablePitcher:
+    """Preserve only directly supplied probable-pitcher fields from the feed."""
+
+    game_data = _mapping(payload.get("gameData"))
+    probable_pitchers = _mapping(game_data.get("probablePitchers"))
+    pitcher = _mapping(probable_pitchers.get(side))
+    player_id = _positive_integer(pitcher.get("id"))
+    player = _mapping(_mapping(game_data.get("players")).get(f"ID{player_id}"))
+    pitcher_hand = _mapping(pitcher.get("pitchHand"))
+    player_hand = _mapping(player.get("pitchHand"))
+    return ProbablePitcher(
+        player_mlbam_id=player_id,
+        player_name=_string(pitcher.get("fullName")) or _string(player.get("fullName")),
+        throws=_string(pitcher_hand.get("code")) or _string(player_hand.get("code")),
+        status="probable" if player_id is not None else "unresolved",
     )
 
 

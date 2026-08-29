@@ -27,3 +27,13 @@ sole event key, with no team/date deduplication.
 ## Stabilization policy artifacts
 
 `data/stabilization_policy.example.json` is synthetic fixture/documentation data and is not production evidence. A future `data/policies/stabilization_policy.production.candidate.json`, if created after source review, is research-reviewed candidate data only. It is not automatically active and is never loaded by a default runtime path. An active stabilization policy requires an explicit promotion review, a separate commit, and explicit runtime configuration naming the active file.
+
+## Slate-context artifact
+
+The read-only slate-context command requires both an ISO date and an explicit output path:
+
+```powershell
+python -m hitterdna.slate_context --date 2026-08-29 --output artifacts\slate-context-2026-08-29.json
+```
+
+It records the schedule, freshness state, confirmed-lineup status, hitter MLBAM IDs and batting order, venue, and Stats API probable-pitcher context. It is not a hitter projection, candidate-selection, market, or recommendation command. Unconfirmed lineups and excluded game states remain visible as explicit artifact states.
