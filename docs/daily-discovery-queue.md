@@ -10,6 +10,18 @@ No alert, screenshot, manual note, batter-versus-pitcher split, composite score,
 
 external source -> queue validation -> candidate filter table -> fair-probability model -> market devig -> edge-ranked shortlist -> ledger
 
+## Identity-resolution ingress
+
+An intake record may use `null` for `game_pk` and `player_mlbam_id` while resolution is pending. Resolve it in this order:
+
+1. Query the MLB Stats API schedule for the analysis date.
+2. Match one exact away/home team pairing and store its authoritative `gamePk`, venue, probable pitchers, and game status.
+3. Resolve the candidate name against an authoritative player list only when exactly one normalized name match has a positive MLBAM ID.
+4. Mark zero matches as `unresolved` and multiple matches as `ambiguous`; do not infer, reuse, or invent an ID.
+5. Allow the Python queue gate to advance only records with positive `game_pk` and `player_mlbam_id` values.
+
+`null`, zero, missing, malformed, unresolved, and ambiguous identifiers remain outside the candidate filter table.
+
 ## Permitted sources
 
 - Baseball Savant

@@ -76,3 +76,23 @@ def test_market_gate_allows_price():
     decision = market_ready(record)
     assert decision.valid is True
     assert decision.disposition == "priced"
+
+
+def test_null_or_zero_game_pk_cannot_advance():
+    for game_pk in (None, 0):
+        record = base_record()
+        record["game_pk"] = game_pk
+        decision = validate_discovery_record(record)
+        assert decision.valid is False
+        assert decision.disposition == "drop"
+        assert "unresolved identifiers: game_pk" in decision.reasons
+
+
+def test_null_or_zero_player_mlbam_id_cannot_advance():
+    for player_mlbam_id in (None, 0):
+        record = base_record()
+        record["player_mlbam_id"] = player_mlbam_id
+        decision = validate_discovery_record(record)
+        assert decision.valid is False
+        assert decision.disposition == "drop"
+        assert "unresolved identifiers: player_mlbam_id" in decision.reasons

@@ -7,8 +7,8 @@
   "properties": {
     "queue_id": {"type": "string", "format": "uuid"},
     "analysis_date": {"type": "string", "format": "date"},
-    "game_pk": {"type": "integer", "minimum": 1},
-    "player_mlbam_id": {"type": "integer", "minimum": 1},
+    "game_pk": {"type": ["integer", "null"], "minimum": 1},
+    "player_mlbam_id": {"type": ["integer", "null"], "minimum": 1},
     "candidate_name": {"type": "string", "minLength": 1},
     "team": {"type": "string", "pattern": "^[A-Z]{2,3}$"},
     "opponent": {"type": "string", "pattern": "^[A-Z]{2,3}$"},

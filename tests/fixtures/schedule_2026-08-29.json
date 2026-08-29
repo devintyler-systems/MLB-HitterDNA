@@ -1,0 +1,26 @@
+{
+  "dates": [
+    {
+      "date": "2026-08-29",
+      "games": [
+        {
+          "gamePk": 777001,
+          "officialDate": "2026-08-29",
+          "gameDate": "2026-08-29T23:10:00Z",
+          "status": {"abstractGameState": "Preview", "detailedState": "Scheduled"},
+          "venue": {"id": 3289, "name": "Citi Field"},
+          "teams": {
+            "away": {
+              "team": {"id": 117, "name": "Houston Astros", "abbreviation": "HOU", "teamCode": "hou"},
+              "probablePitcher": {"id": 605483, "fullName": "Framber Valdez"}
+            },
+            "home": {
+              "team": {"id": 121, "name": "New York Mets", "abbreviation": "NYM", "teamCode": "nym"},
+              "probablePitcher": {"id": 594798, "fullName": "Kodai Senga"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -58,6 +58,17 @@ def validate_discovery_record(record: dict[str, Any]) -> QueueDecision:
     if missing:
         reasons.append(f"missing required fields: {', '.join(missing)}")
 
+    # Intake records may legitimately carry null placeholders while identity
+    # resolution is pending. They are valid queue records, but they may never
+    # advance to the candidate filter table until both authoritative IDs exist.
+    unresolved_ids = [
+        field
+        for field in ("game_pk", "player_mlbam_id")
+        if not _is_positive_integer(record.get(field))
+    ]
+    if unresolved_ids:
+        reasons.append(f"unresolved identifiers: {', '.join(unresolved_ids)}")
+
     if prop_family not in ALLOWED_PROP_FAMILIES:
         reasons.append("invalid prop family")
 
@@ -80,6 +91,12 @@ def validate_discovery_record(record: dict[str, Any]) -> QueueDecision:
         return QueueDecision(False, "drop", tuple(reasons))
 
     return QueueDecision(True, "advance", ("validated for candidate filter table",))
+
+
+def _is_positive_integer(value: Any) -> bool:
+    """Return whether *value* is a real, resolved positive identifier."""
+
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 1
 
 
 def market_ready(record: dict[str, Any]) -> QueueDecision:
