@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol
+from typing import Any, Literal, Mapping, Protocol
 
 import requests
 
 
 SCHEDULE_URL = "https://statsapi.mlb.com/api/v1/schedule"
+PregameEligibility = Literal[
+    "eligible_refresh",
+    "urgent_refresh",
+    "exclude_in_progress",
+    "exclude_terminal",
+    "hold_unknown",
+]
 
 
 class Response(Protocol):
@@ -40,6 +47,7 @@ class GameContext:
     probable_home_pitcher_mlbam_id: int | None
     probable_home_pitcher_name: str | None
     game_status: str | None
+    pregame_eligibility: PregameEligibility
 
 
 @dataclass
@@ -101,6 +109,7 @@ def normalize_game_context(payload: Mapping[str, Any]) -> GameContext:
     status = _as_mapping(payload.get("status"))
     away_pitcher = _as_mapping(away.get("probablePitcher"))
     home_pitcher = _as_mapping(home.get("probablePitcher"))
+    game_status = _string(status.get("detailedState") or status.get("abstractGameState"))
 
     return GameContext(
         analysis_date=_analysis_date(payload),
@@ -113,8 +122,23 @@ def normalize_game_context(payload: Mapping[str, Any]) -> GameContext:
         probable_away_pitcher_name=_string(away_pitcher.get("fullName")),
         probable_home_pitcher_mlbam_id=_positive_integer(home_pitcher.get("id")),
         probable_home_pitcher_name=_string(home_pitcher.get("fullName")),
-        game_status=_string(status.get("detailedState") or status.get("abstractGameState")),
+        game_status=game_status,
+        pregame_eligibility=classify_pregame_eligibility(game_status),
     )
+
+
+def classify_pregame_eligibility(game_status: str | None) -> PregameEligibility:
+    """Classify an MLB schedule state without performing I/O or mutation."""
+
+    if game_status in {"Scheduled", "Pre-Game"}:
+        return "eligible_refresh"
+    if game_status == "Warmup":
+        return "urgent_refresh"
+    if game_status == "In Progress":
+        return "exclude_in_progress"
+    if game_status in {"Final", "Postponed", "Cancelled", "Suspended"}:
+        return "exclude_terminal"
+    return "hold_unknown"
 
 
 def _schedule_games(schedule: Mapping[str, Any]) -> list[Mapping[str, Any]]:

@@ -14,3 +14,6 @@ python -m hitterdna.smoke_test --date 2026-08-29
 ```
 
 The smoke test only reads the MLB Stats API and prints compact JSON to stdout.
+Each game is retained by its `game_pk` event key, including doubleheaders. Only
+`eligible_refresh` and `urgent_refresh` may proceed to lineup refresh; all
+other freshness states are blocked from pregame candidate generation.

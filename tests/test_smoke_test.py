@@ -57,6 +57,7 @@ def test_smoke_test_emits_compact_normalized_json_from_fixture() -> None:
                 "home_team": "NYM",
                 "venue_name": "Citi Field",
                 "game_status": "Scheduled",
+                "pregame_eligibility": "eligible_refresh",
                 "probable_away_pitcher_name": "Framber Valdez",
                 "probable_home_pitcher_name": "Kodai Senga",
             }

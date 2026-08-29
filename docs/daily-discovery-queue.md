@@ -22,6 +22,13 @@ An intake record may use `null` for `game_pk` and `player_mlbam_id` while resolu
 
 `null`, zero, missing, malformed, unresolved, and ambiguous identifiers remain outside the candidate filter table.
 
+## Schedule freshness gate
+
+`game_pk` is the event key: retain every scheduled event by that key, including
+same-date doubleheaders with the same team pairing. Only `eligible_refresh` and
+`urgent_refresh` games can proceed to the lineup-refresh stage. Every exclusion
+or hold status is blocked from pregame candidate generation.
+
 ## Permitted sources
 
 - Baseball Savant

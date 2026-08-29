@@ -139,6 +139,7 @@ def _compact_game(context: GameContext) -> dict[str, Any]:
         "home_team": game["home_team"],
         "venue_name": game["venue_name"],
         "game_status": game["game_status"],
+        "pregame_eligibility": game["pregame_eligibility"],
         "probable_away_pitcher_name": game["probable_away_pitcher_name"],
         "probable_home_pitcher_name": game["probable_home_pitcher_name"],
     }

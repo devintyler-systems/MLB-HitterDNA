@@ -53,6 +53,7 @@ def test_resolves_normalized_game_context_from_saved_schedule() -> None:
     assert context.probable_home_pitcher_mlbam_id == 594798
     assert context.probable_home_pitcher_name == "Kodai Senga"
     assert context.game_status == "Scheduled"
+    assert context.pregame_eligibility == "eligible_refresh"
     assert session.calls == [
         (
             SCHEDULE_URL,
