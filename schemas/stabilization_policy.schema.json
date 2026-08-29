@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HitterDNA Stabilization Policy File",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_file_version", "policies"],
+  "properties": {
+    "policy_file_version": {"type": "string", "minLength": 1},
+    "policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "policy_id",
+          "policy_version",
+          "metric_key",
+          "sample_type",
+          "minimum_sample_ref",
+          "minimum_sample_value",
+          "source_name",
+          "source_url",
+          "retrieved_at_utc",
+          "rationale",
+          "applies_from_season",
+          "applies_through_season"
+        ],
+        "properties": {
+          "policy_id": {"type": "string", "minLength": 1},
+          "policy_version": {"type": "string", "minLength": 1},
+          "metric_key": {"type": "string", "minLength": 1},
+          "sample_type": {"type": "string", "minLength": 1},
+          "minimum_sample_ref": {"type": "string", "minLength": 1},
+          "minimum_sample_value": {"type": "number", "exclusiveMinimum": 0},
+          "source_name": {"type": "string", "minLength": 1},
+          "source_url": {"type": "string", "format": "uri", "pattern": "^https?://", "minLength": 1},
+          "retrieved_at_utc": {"type": "string", "format": "date-time", "minLength": 1},
+          "rationale": {"type": "string", "minLength": 1},
+          "applies_from_season": {"type": ["integer", "null"]},
+          "applies_through_season": {"type": ["integer", "null"]}
+        }
+      }
+    }
+  }
+}

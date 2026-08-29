@@ -1,0 +1,33 @@
+{
+  "policy_file_version": "fixture-v1",
+  "policies": [
+    {
+      "policy_id": "fixture-zero-minimum",
+      "policy_version": "v1",
+      "metric_key": "fixture_metric",
+      "sample_type": "pa",
+      "minimum_sample_ref": "fixture-policy:v1:zero",
+      "minimum_sample_value": 0,
+      "source_name": "Fixture policy source",
+      "source_url": "https://example.invalid/policies/fixture-zero",
+      "retrieved_at_utc": "2030-02-03T04:05:06Z",
+      "rationale": "Synthetic fixture policy.",
+      "applies_from_season": null,
+      "applies_through_season": null
+    },
+    {
+      "policy_id": "fixture-negative-minimum",
+      "policy_version": "v1",
+      "metric_key": "fixture_other_metric",
+      "sample_type": "pa",
+      "minimum_sample_ref": "fixture-policy:v1:negative",
+      "minimum_sample_value": -5,
+      "source_name": "Fixture policy source",
+      "source_url": "https://example.invalid/policies/fixture-negative",
+      "retrieved_at_utc": "2030-02-03T04:05:06Z",
+      "rationale": "Synthetic fixture policy.",
+      "applies_from_season": null,
+      "applies_through_season": null
+    }
+  ]
+}

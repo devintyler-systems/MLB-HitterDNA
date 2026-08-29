@@ -1,0 +1,61 @@
+{
+  "policy_file_version": "synthetic-example-v1",
+  "policies": [
+    {
+      "policy_id": "synthetic-pa-policy",
+      "policy_version": "v1",
+      "metric_key": "synthetic_pa_metric",
+      "sample_type": "pa",
+      "minimum_sample_ref": "synthetic-policy:v1:pa-minimum",
+      "minimum_sample_value": 17,
+      "source_name": "Synthetic policy example; not production evidence",
+      "source_url": "https://example.invalid/stabilization/synthetic-pa-v1",
+      "retrieved_at_utc": "2030-01-01T00:00:00Z",
+      "rationale": "Synthetic illustration only; not production evidence.",
+      "applies_from_season": null,
+      "applies_through_season": null
+    },
+    {
+      "policy_id": "synthetic-bip-policy",
+      "policy_version": "v1",
+      "metric_key": "synthetic_bip_metric",
+      "sample_type": "bip",
+      "minimum_sample_ref": "synthetic-policy:v1:bip-minimum",
+      "minimum_sample_value": 11,
+      "source_name": "Synthetic policy example; not production evidence",
+      "source_url": "https://example.invalid/stabilization/synthetic-bip-v1",
+      "retrieved_at_utc": "2030-01-01T00:00:00Z",
+      "rationale": "Synthetic illustration only; not production evidence.",
+      "applies_from_season": null,
+      "applies_through_season": null
+    },
+    {
+      "policy_id": "synthetic-seasonal-early",
+      "policy_version": "v1",
+      "metric_key": "synthetic_seasonal_metric",
+      "sample_type": "pa",
+      "minimum_sample_ref": "synthetic-policy:v1:seasonal-early",
+      "minimum_sample_value": 13,
+      "source_name": "Synthetic policy example; not production evidence",
+      "source_url": "https://example.invalid/stabilization/synthetic-seasonal-early",
+      "retrieved_at_utc": "2030-01-01T00:00:00Z",
+      "rationale": "Synthetic illustration only; not production evidence.",
+      "applies_from_season": 2030,
+      "applies_through_season": 2031
+    },
+    {
+      "policy_id": "synthetic-seasonal-late",
+      "policy_version": "v1",
+      "metric_key": "synthetic_seasonal_metric",
+      "sample_type": "pa",
+      "minimum_sample_ref": "synthetic-policy:v1:seasonal-late",
+      "minimum_sample_value": 19,
+      "source_name": "Synthetic policy example; not production evidence",
+      "source_url": "https://example.invalid/stabilization/synthetic-seasonal-late",
+      "retrieved_at_utc": "2030-01-01T00:00:00Z",
+      "rationale": "Synthetic illustration only; not production evidence.",
+      "applies_from_season": 2032,
+      "applies_through_season": 2033
+    }
+  ]
+}

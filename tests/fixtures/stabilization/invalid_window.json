@@ -1,0 +1,19 @@
+{
+  "policy_file_version": "fixture-v1",
+  "policies": [
+    {
+      "policy_id": "fixture-invalid-window",
+      "policy_version": "v1",
+      "metric_key": "fixture_metric",
+      "sample_type": "pa",
+      "minimum_sample_ref": "fixture-policy:v1:window",
+      "minimum_sample_value": 12,
+      "source_name": "Fixture policy source",
+      "source_url": "https://example.invalid/policies/fixture-window",
+      "retrieved_at_utc": "2030-02-03T04:05:06Z",
+      "rationale": "Synthetic fixture policy.",
+      "applies_from_season": 2034,
+      "applies_through_season": 2033
+    }
+  ]
+}
