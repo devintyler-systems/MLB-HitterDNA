@@ -9,3 +9,6 @@ __pycache__/
 # Local environment files
 .env
 .env.*
+
+# Setuptools editable-install metadata
+*.egg-info/
