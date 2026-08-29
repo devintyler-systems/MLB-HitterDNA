@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HitterDNA Candidate Filter Table",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "analysis_date",
+    "game_pk",
+    "player_mlbam_id",
+    "player_name",
+    "candidate_disposition",
+    "results"
+  ],
+  "properties": {
+    "analysis_date": {"type": "string"},
+    "game_pk": {"type": ["integer", "null"]},
+    "player_mlbam_id": {"type": ["integer", "null"]},
+    "player_name": {"type": "string"},
+    "candidate_disposition": {"type": "string", "enum": ["advance", "drop"]},
+    "results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "analysis_date",
+          "game_pk",
+          "player_mlbam_id",
+          "player_name",
+          "team_abbreviation",
+          "opponent_abbreviation",
+          "batting_order",
+          "pregame_eligibility",
+          "filter_id",
+          "filter_version",
+          "filter_name",
+          "required",
+          "metric_key",
+          "actual_value",
+          "sample_type",
+          "sample_n",
+          "metric_source_url",
+          "metric_retrieved_at_utc",
+          "stabilization_status",
+          "threshold_ref",
+          "threshold_value",
+          "threshold_source_url",
+          "threshold_retrieved_at_utc",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "analysis_date": {"type": "string"},
+          "game_pk": {"type": ["integer", "null"]},
+          "player_mlbam_id": {"type": ["integer", "null"]},
+          "player_name": {"type": "string"},
+          "team_abbreviation": {"type": "string"},
+          "opponent_abbreviation": {"type": "string"},
+          "batting_order": {"type": ["integer", "null"]},
+          "pregame_eligibility": {"type": "string"},
+          "filter_id": {"type": "string"},
+          "filter_version": {"type": "string"},
+          "filter_name": {"type": "string"},
+          "required": {"type": "boolean"},
+          "metric_key": {"type": "string"},
+          "actual_value": {"type": ["number", "string", "null"]},
+          "sample_type": {"type": "string"},
+          "sample_n": {"type": ["number", "null"]},
+          "metric_source_url": {"type": ["string", "null"]},
+          "metric_retrieved_at_utc": {"type": ["string", "null"]},
+          "stabilization_status": {"type": "string"},
+          "threshold_ref": {"type": ["string", "null"]},
+          "threshold_value": {"type": ["number", "string", "null"]},
+          "threshold_source_url": {"type": ["string", "null"]},
+          "threshold_retrieved_at_utc": {"type": ["string", "null"]},
+          "status": {"type": "string", "enum": ["PASS", "FAIL", "UNVERIFIED"]},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}

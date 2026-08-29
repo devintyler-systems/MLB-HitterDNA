@@ -1,0 +1,58 @@
+{
+  "analysis_date": "2030-01-01",
+  "game_context": {
+    "analysis_date": "2030-01-01",
+    "game_pk": 900001,
+    "venue_id": 1,
+    "venue_name": "Synthetic Park",
+    "away_team": "SYN",
+    "home_team": "OPP",
+    "probable_away_pitcher_mlbam_id": null,
+    "probable_away_pitcher_name": null,
+    "probable_home_pitcher_mlbam_id": null,
+    "probable_home_pitcher_name": null,
+    "game_status": "Scheduled",
+    "pregame_eligibility": "eligible_refresh"
+  },
+  "lineup_player": {
+    "game_pk": 900001,
+    "team_id": 1,
+    "team_abbreviation": "SYN",
+    "player_mlbam_id": 700001,
+    "player_name": "Synthetic Batter",
+    "lineup_status": "confirmed",
+    "batting_order": 3,
+    "position": "DH",
+    "source_url": "https://example.invalid/lineups/900001",
+    "retrieved_at_utc": "2030-01-01T00:00:00Z"
+  },
+  "observation": {
+    "metric_key": "synthetic_metric",
+    "value": 8,
+    "sample_type": "synthetic_sample",
+    "sample_n": 100,
+    "source_url": "https://example.invalid/metrics/synthetic_metric",
+    "retrieved_at_utc": "2030-01-01T00:00:00Z",
+    "source_name": "synthetic-source",
+    "stabilization_status": "pass",
+    "notes": "synthetic fixture evidence"
+  },
+  "threshold_registry": {
+    "values": {"filter-thresholds:v1:synthetic_metric": 7},
+    "source_url": "https://example.invalid/thresholds/v1",
+    "retrieved_at_utc": "2030-01-01T00:00:00Z",
+    "version": "v1"
+  },
+  "definition": {
+    "filter_id": "synthetic-required",
+    "filter_version": "v1",
+    "filter_name": "Synthetic required filter",
+    "required": true,
+    "metric_key": "synthetic_metric",
+    "operator": "gte",
+    "threshold_ref": "filter-thresholds:v1:synthetic_metric",
+    "allowed_values": null,
+    "custom_rule_id": null,
+    "description": "fixture definition"
+  }
+}
