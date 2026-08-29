@@ -1,12 +1,16 @@
-## Read-only schedule smoke test
+## Clean-machine setup
 
-From PowerShell, run the Stats API schedule check for a date (with optional
-away and home team-abbreviation filters):
+From PowerShell, create and install the editable development environment:
 
 ```powershell
-$env:PYTHONPATH = "$PWD\src"
-python -m hitterdna.smoke_test --date 2026-08-29 --away-team HOU --home-team NYM
+py -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+python -c "import hitterdna; print(hitterdna.__file__)"
+python -m pytest -q
+python -m hitterdna.smoke_test --date 2026-08-29
 ```
 
-The command only reads the MLB Stats API and prints compact JSON to stdout. It
-returns a non-zero exit code for an empty, malformed, or unnormalizable result.
+The smoke test only reads the MLB Stats API and prints compact JSON to stdout.

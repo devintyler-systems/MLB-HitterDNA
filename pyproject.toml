@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling>=1.25"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlb-hitterdna"
@@ -13,11 +13,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = [
+dev = [
   "pytest>=8",
 ]
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pytest.ini_options]
 addopts = "-q"
-pythonpath = ["src"]
 testpaths = ["tests"]
