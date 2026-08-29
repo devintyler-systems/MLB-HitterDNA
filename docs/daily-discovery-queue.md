@@ -8,7 +8,7 @@ No alert, screenshot, manual note, batter-versus-pitcher split, composite score,
 
 ## Flow
 
-external source -> queue validation -> candidate filter table -> fair-probability model -> market devig -> edge-ranked shortlist -> ledger
+schedule -> freshness gate -> confirmed-lineup ingestion -> candidate filter table -> model -> market evaluation
 
 ## Identity-resolution ingress
 
@@ -28,6 +28,16 @@ An intake record may use `null` for `game_pk` and `player_mlbam_id` while resolu
 same-date doubleheaders with the same team pairing. Only `eligible_refresh` and
 `urgent_refresh` games can proceed to the lineup-refresh stage. Every exclusion
 or hold status is blocked from pregame candidate generation.
+
+## Confirmed-lineup ingestion
+
+The MLB Stats API live game feed is the authoritative lineup source. Each
+lineup record retains the feed URL and retrieval timestamp. A player may enter
+candidate filtering only when the feed establishes a `confirmed` nine-player
+batting order; `UNCONFIRMED` is an explicit exclusion state, never a forecast.
+Do not use prior lineups, projected lineups, roster inference, box scores, or
+third-party lineup sources as confirmation. `game_pk` remains the sole event
+key, so no team/date deduplication is permitted.
 
 ## Permitted sources
 

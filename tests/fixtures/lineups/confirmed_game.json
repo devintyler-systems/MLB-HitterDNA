@@ -1,0 +1,38 @@
+{
+  "liveData": {
+    "boxscore": {
+      "teams": {
+        "away": {
+          "team": {"id": 117, "abbreviation": "HOU"},
+          "battingOrder": [101, 102, 103, 104, 105, 106, 107, 108, 109],
+          "players": {
+            "ID101": {"person": {"id": 101, "fullName": "Away Player 1"}, "position": {"abbreviation": "DH"}, "stats": {"batting": {"battingOrder": "100"}}},
+            "ID102": {"person": {"id": 102, "fullName": "Away Player 2"}, "position": {"abbreviation": "CF"}, "stats": {"batting": {"battingOrder": "200"}}},
+            "ID103": {"person": {"id": 103, "fullName": "Away Player 3"}, "position": {"abbreviation": "1B"}, "stats": {"batting": {"battingOrder": "300"}}},
+            "ID104": {"person": {"id": 104, "fullName": "Away Player 4"}, "position": {"abbreviation": "2B"}, "stats": {"batting": {"battingOrder": "400"}}},
+            "ID105": {"person": {"id": 105, "fullName": "Away Player 5"}, "position": {"abbreviation": "3B"}, "stats": {"batting": {"battingOrder": "500"}}},
+            "ID106": {"person": {"id": 106, "fullName": "Away Player 6"}, "position": {"abbreviation": "SS"}, "stats": {"batting": {"battingOrder": "600"}}},
+            "ID107": {"person": {"id": 107, "fullName": "Away Player 7"}, "position": {"abbreviation": "LF"}, "stats": {"batting": {"battingOrder": "700"}}},
+            "ID108": {"person": {"id": 108, "fullName": "Away Player 8"}, "position": {"abbreviation": "C"}, "stats": {"batting": {"battingOrder": "800"}}},
+            "ID109": {"person": {"id": 109, "fullName": "Away Player 9"}, "position": {"abbreviation": "RF"}, "stats": {"batting": {"battingOrder": "900"}}}
+          }
+        },
+        "home": {
+          "team": {"id": 121, "abbreviation": "NYM"},
+          "battingOrder": [201, 202, 203, 204, 205, 206, 207, 208, 209],
+          "players": {
+            "ID201": {"person": {"id": 201, "fullName": "Home Player 1"}, "position": {"abbreviation": "DH"}, "stats": {"batting": {"battingOrder": "100"}}},
+            "ID202": {"person": {"id": 202, "fullName": "Home Player 2"}, "position": {"abbreviation": "CF"}, "stats": {"batting": {"battingOrder": "200"}}},
+            "ID203": {"person": {"id": 203, "fullName": "Home Player 3"}, "position": {"abbreviation": "1B"}, "stats": {"batting": {"battingOrder": "300"}}},
+            "ID204": {"person": {"id": 204, "fullName": "Home Player 4"}, "position": {"abbreviation": "2B"}, "stats": {"batting": {"battingOrder": "400"}}},
+            "ID205": {"person": {"id": 205, "fullName": "Home Player 5"}, "position": {"abbreviation": "3B"}, "stats": {"batting": {"battingOrder": "500"}}},
+            "ID206": {"person": {"id": 206, "fullName": "Home Player 6"}, "position": {"abbreviation": "SS"}, "stats": {"batting": {"battingOrder": "600"}}},
+            "ID207": {"person": {"id": 207, "fullName": "Home Player 7"}, "position": {"abbreviation": "LF"}, "stats": {"batting": {"battingOrder": "700"}}},
+            "ID208": {"person": {"id": 208, "fullName": "Home Player 8"}, "position": {"abbreviation": "C"}, "stats": {"batting": {"battingOrder": "800"}}},
+            "ID209": {"person": {"id": 209, "fullName": "Home Player 9"}, "position": {"abbreviation": "RF"}, "stats": {"batting": {"battingOrder": "900"}}}
+          }
+        }
+      }
+    }
+  }
+}
