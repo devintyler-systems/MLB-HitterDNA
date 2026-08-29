@@ -21,18 +21,17 @@ decision into a new observation without altering its source URL, timestamp,
 sample metadata, raw value, source name, or notes. Policy provenance remains in
 `StabilizationDecision` and, later, in the filter-table audit result.
 
-## Policy files and source attribution
+## Policy files, source attribution, and promotion
 
-Only local JSON policy files are accepted. A file has a `policy_file_version`
-and a non-empty `policies` array. Every policy carries an opaque policy ID and
-version, metric key, sample type, opaque `minimum_sample_ref`, caller-supplied
-minimum sample value, source name, source URL, UTC retrieval timestamp,
-rationale, and optional season window.
+Only local JSON policy files are accepted. A file has a `policy_file_version` and a non-empty `policies` array. Every policy carries an opaque policy ID and version, metric key, sample type, opaque `minimum_sample_ref`, caller-supplied minimum sample value, source name, source URL, UTC retrieval timestamp, rationale, and optional season window.
 
-The registry contains no numerical stabilization thresholds. A minimum sample
-value must come from a source-attributed policy file; memory-derived values are
-explicitly prohibited. `data/stabilization_policy.example.json` is synthetic
-and is not production evidence.
+The registry contains no numerical stabilization thresholds. A minimum sample value must come from a source-attributed policy file; memory-derived values are explicitly prohibited.
+
+`data/stabilization_policy.example.json` is a synthetic example used for fixtures and documentation. It is not research evidence, is not a production candidate, and must never be loaded as an active policy.
+
+A production candidate artifact, when one exists, is reviewed research data. It is not active merely because it is present in the repository. Candidate records require a companion evidence ledger and explicit evidence review.
+
+An active policy artifact exists only after a separate explicit promotion review and commit names it in runtime configuration. No current default runtime path loads a production candidate artifact automatically. The registry accepts only an explicit caller-provided policy file path.
 
 ## Resolution and outcomes
 
