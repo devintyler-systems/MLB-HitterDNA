@@ -1,7 +1,7 @@
 # HitterDNA Stabilization Table
 
-**Status:** PROVISIONAL v0.1  
-**Effective date:** 2026-09-01  
+**Status:** PROVISIONAL v0.1
+**Effective date:** 2026-09-01
 **Canonical format:** YAML inside the `stabilization_registry` fence below. The daily screen must parse that fence, not the explanatory prose or rendered Markdown table.
 
 ## Contract
