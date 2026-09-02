@@ -1,0 +1,29 @@
+{
+  "dates": [
+    {
+      "date": "2026-08-29",
+      "games": [
+        {
+          "gamePk": 777101,
+          "officialDate": "2026-08-29",
+          "status": {"detailedState": "Scheduled"},
+          "venue": {"id": 3289, "name": "Citi Field"},
+          "teams": {
+            "away": {"team": {"abbreviation": "HOU"}},
+            "home": {"team": {"abbreviation": "NYM"}}
+          }
+        },
+        {
+          "gamePk": 777102,
+          "officialDate": "2026-08-29",
+          "status": {"detailedState": "Pre-Game"},
+          "venue": {"id": 3289, "name": "Citi Field"},
+          "teams": {
+            "away": {"team": {"abbreviation": "HOU"}},
+            "home": {"team": {"abbreviation": "NYM"}}
+          }
+        }
+      ]
+    }
+  ]
+}

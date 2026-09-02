@@ -1,0 +1,12 @@
+[
+  {"game_status": "Scheduled", "pregame_eligibility": "eligible_refresh"},
+  {"game_status": "Pre-Game", "pregame_eligibility": "eligible_refresh"},
+  {"game_status": "Warmup", "pregame_eligibility": "urgent_refresh"},
+  {"game_status": "In Progress", "pregame_eligibility": "exclude_in_progress"},
+  {"game_status": "Final", "pregame_eligibility": "exclude_terminal"},
+  {"game_status": "Postponed", "pregame_eligibility": "exclude_terminal"},
+  {"game_status": "Cancelled", "pregame_eligibility": "exclude_terminal"},
+  {"game_status": "Suspended", "pregame_eligibility": "exclude_terminal"},
+  {"game_status": null, "pregame_eligibility": "hold_unknown"},
+  {"game_status": "Delayed", "pregame_eligibility": "hold_unknown"}
+]
