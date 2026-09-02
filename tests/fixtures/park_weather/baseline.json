@@ -1,0 +1,16 @@
+{
+  "game_pk": 900101,
+  "venue_mlbam_id": 101,
+  "weather_kind": "forecast",
+  "valid_at_utc": "2030-07-04T19:05:00Z",
+  "retrieved_at_utc": "2030-07-04T16:00:00Z",
+  "temperature_f": 78.0,
+  "wind_speed_mph": 10.0,
+  "wind_from_deg": 180.0,
+  "roof_state": "not_applicable",
+  "provider": "Synthetic Weather",
+  "provider_location_key": "synthetic-park-101",
+  "source_request": "https://example.invalid/weather/synthetic-park-101",
+  "raw_response_hash": "sha256:fixture-weather-response",
+  "center_field_bearing_deg": 0.0
+}
