@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HitterDNA Park Weather Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "game_pk",
+    "venue_mlbam_id",
+    "weather_kind",
+    "valid_at_utc",
+    "retrieved_at_utc",
+    "temperature_f",
+    "wind_speed_mph",
+    "wind_from_deg",
+    "roof_state",
+    "provider",
+    "provider_location_key",
+    "source_request",
+    "raw_response_hash"
+  ],
+  "properties": {
+    "game_pk": {"type": "integer", "minimum": 1},
+    "venue_mlbam_id": {"type": "integer", "minimum": 1},
+    "weather_kind": {"type": "string", "enum": ["forecast", "observed"]},
+    "valid_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(?:Z|\\+00:00)$"
+    },
+    "retrieved_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(?:Z|\\+00:00)$"
+    },
+    "temperature_f": {"type": "number"},
+    "wind_speed_mph": {"type": "number", "minimum": 0},
+    "wind_from_deg": {"type": "number", "minimum": 0, "exclusiveMaximum": 360},
+    "roof_state": {
+      "type": "string",
+      "enum": ["open", "closed", "unknown", "not_applicable"]
+    },
+    "provider": {"type": "string", "minLength": 1},
+    "provider_location_key": {"type": "string", "minLength": 1},
+    "source_request": {"type": "string", "minLength": 1},
+    "raw_response_hash": {"type": "string", "minLength": 1},
+    "center_field_bearing_deg": {
+      "type": "number",
+      "minimum": 0,
+      "exclusiveMaximum": 360
+    }
+  }
+}

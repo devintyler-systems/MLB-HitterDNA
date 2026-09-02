@@ -1,0 +1,12 @@
+{
+  "sutter_health": {
+    "venue_name": "Sutter Health Park",
+    "park_factor_status": "PASS",
+    "rays_continuity_suspect": false
+  },
+  "rays_continuity": {
+    "venue_name": "Synthetic Rays Park",
+    "park_factor_status": "PASS",
+    "rays_continuity_suspect": true
+  }
+}
