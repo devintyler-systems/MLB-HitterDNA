@@ -1,0 +1,2346 @@
+{
+  "registry_version": "1",
+  "entries": [
+    {
+      "endpoint_id": "mlb_statsapi_schedule_by_date",
+      "source": "MLB Stats API",
+      "domain": "schedule",
+      "purpose": "Establish slate event identity and schedule context.",
+      "endpoint_template": "https://statsapi.mlb.com/api/v1/schedule",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [
+          {
+            "name": "sportId",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "const",
+              "value": 1
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "template",
+              "value": "{game_date}"
+            }
+          },
+          {
+            "name": "hydrate",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "const",
+              "value": "probablePitcher,venue"
+            }
+          }
+        ],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "game_date",
+          "venue_mlbam_id",
+          "opponent_pitcher_mlbam_id"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "slate_creation",
+        "description": "Refresh before lineup intake and event status changes."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "AUTOMATED"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_live_game_feed",
+      "source": "MLB Stats API",
+      "domain": "game",
+      "purpose": "Retrieve current game-specific state and participants.",
+      "endpoint_template": "https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [
+          {
+            "name": "game_pk",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          }
+        ],
+        "query_parameters": [],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "game_date",
+          "player_mlbam_id",
+          "opponent_pitcher_mlbam_id",
+          "venue_mlbam_id"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "pregame_eligible",
+        "description": "Increase urgency at warmup and stop when in progress or terminal."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "AUTOMATED"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_lineup_confirmation",
+      "source": "MLB Stats API",
+      "domain": "lineup",
+      "purpose": "Confirm official nine-player batting orders.",
+      "endpoint_template": "https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [
+          {
+            "name": "game_pk",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          }
+        ],
+        "query_parameters": [],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "game_date",
+          "player_mlbam_id"
+        ],
+        "supplemental": [
+          {
+            "key": "batting_order_slot",
+            "justification": "Official lineup descriptive field."
+          }
+        ]
+      },
+      "retrieval_cadence": {
+        "trigger": "eligible_refresh",
+        "description": "Refresh until each side has nine unique positive IDs in slots one through nine."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "projected_or_inferred_orders_not_confirmation"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "AUTOMATED"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_probable_pitchers",
+      "source": "MLB Stats API",
+      "domain": "pitcher",
+      "purpose": "Establish supplied probable pitchers before actual starters are known.",
+      "endpoint_template": null,
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": [],
+        "request_variants": [
+          {
+            "endpoint_template": "https://statsapi.mlb.com/api/v1/schedule",
+            "method": "GET",
+            "path_parameters": [],
+            "query_parameters": [
+              {
+                "name": "sportId",
+                "required": true,
+                "type": "integer",
+                "constraint": {
+                  "kind": "const",
+                  "value": 1
+                }
+              },
+              {
+                "name": "date",
+                "required": true,
+                "type": "string",
+                "constraint": {
+                  "kind": "template",
+                  "value": "{game_date}"
+                }
+              },
+              {
+                "name": "hydrate",
+                "required": true,
+                "type": "string",
+                "constraint": {
+                  "kind": "const",
+                  "value": "probablePitcher,venue"
+                }
+              }
+            ],
+            "selection_rule": "schedule_first"
+          },
+          {
+            "endpoint_template": "https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live",
+            "method": "GET",
+            "path_parameters": [
+              {
+                "name": "game_pk",
+                "required": true,
+                "type": "integer",
+                "constraint": {
+                  "kind": "positive_integer"
+                }
+              }
+            ],
+            "query_parameters": [],
+            "selection_rule": "live_feed_for_eligible_game"
+          }
+        ]
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "game_date",
+          "opponent_pitcher_mlbam_id"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "pregame_refresh",
+        "description": "Refresh with schedule and eligible live-feed refreshes."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "stale_probable_cannot_override_actual_starter"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "AUTOMATED"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_player_identity",
+      "source": "MLB Stats API",
+      "domain": "identity",
+      "purpose": "Resolve verified MLBAM player identity without fuzzy joins.",
+      "endpoint_template": null,
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": [],
+        "request_variants": [
+          {
+            "endpoint_template": "https://statsapi.mlb.com/api/v1/people/{player_mlbam_id}",
+            "method": "GET",
+            "path_parameters": [
+              {
+                "name": "player_mlbam_id",
+                "required": true,
+                "type": "integer",
+                "constraint": {
+                  "kind": "positive_integer"
+                }
+              }
+            ],
+            "query_parameters": [],
+            "selection_rule": "detail_by_authoritative_id"
+          },
+          {
+            "endpoint_template": "https://statsapi.mlb.com/api/v1/sports/1/players",
+            "method": "GET",
+            "path_parameters": [],
+            "query_parameters": [
+              {
+                "name": "season",
+                "required": true,
+                "type": "string",
+                "constraint": {
+                  "kind": "template",
+                  "value": "{season}"
+                }
+              }
+            ],
+            "selection_rule": "season_list_for_exact_normalized_name_ingress"
+          }
+        ]
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "first_ingress",
+        "description": "Refresh after unresolved or conflicting identity."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "ambiguous_or_unresolved_identity"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "CONTRACT_ONLY"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_venue_identity",
+      "source": "MLB Stats API",
+      "domain": "identity",
+      "purpose": "Resolve official venue identity for event and park joins.",
+      "endpoint_template": "https://statsapi.mlb.com/api/v1/venues/{venue_mlbam_id}",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [
+          {
+            "name": "venue_mlbam_id",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          }
+        ],
+        "query_parameters": [],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "venue_mlbam_id"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "unseen_venue",
+        "description": "Refresh on schedule/feed identity conflict."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "venue_identity_conflict"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "CONTRACT_ONLY"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_transactions_il_context",
+      "source": "MLB Stats API",
+      "domain": "transactions",
+      "purpose": "Record official transaction and injured-list context.",
+      "endpoint_template": "https://statsapi.mlb.com/api/v1/transactions",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [
+          {
+            "name": "sportId",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "const",
+              "value": 1
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "template",
+              "value": "{start_date}"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "template",
+              "value": "{end_date}"
+            }
+          },
+          {
+            "name": "playerId",
+            "required": false,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": false,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          }
+        ],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "game_date",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "slate_date",
+        "description": "Refresh on official availability changes."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "transaction_not_lineup_confirmation"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "CONTRACT_ONLY"
+    },
+    {
+      "endpoint_id": "mlb_statsapi_box_scores",
+      "source": "MLB Stats API",
+      "domain": "boxscore",
+      "purpose": "Verify actual participants and completed-game results.",
+      "endpoint_template": "https://statsapi.mlb.com/api/v1/game/{game_pk}/boxscore",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [
+          {
+            "name": "game_pk",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          }
+        ],
+        "query_parameters": [],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "JSON",
+        "response_type": "OBJECT"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "game_date",
+          "player_mlbam_id",
+          "opponent_pitcher_mlbam_id",
+          "venue_mlbam_id"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "actual_participation",
+        "description": "Refresh through finalization or official correction."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "cannot_backfill_pregame_confirmation"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "CONTRACT_ONLY"
+    },
+    {
+      "endpoint_id": "savant_expected_statistics",
+      "source": "Baseball Savant",
+      "domain": "expected_statistics",
+      "purpose": "Supply raw season batter expected-statistics observations.",
+      "endpoint_template": "https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={season}&csv=true",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "const",
+              "value": "batter"
+            }
+          },
+          {
+            "name": "year",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "template",
+              "value": "{season}"
+            }
+          },
+          {
+            "name": "csv",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "const",
+              "value": "true"
+            }
+          }
+        ],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [
+          "plate_appearances",
+          "batted_ball_events"
+        ],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "CSV",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "season_request",
+        "description": "Retrieve the requested season export."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "missing_or_duplicate_player_mlbam_id",
+          "incompatible_requested_returned_season"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "AUTOMATED"
+    },
+    {
+      "endpoint_id": "savant_custom_leaderboards",
+      "source": "Baseball Savant",
+      "domain": "custom_leaderboard",
+      "purpose": "Retain reviewed custom metric exports.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "season or date scope",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "batter-or-pitcher view",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "metric list",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "minimum denominator",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "split or handedness filters",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [
+          "plate_appearances",
+          "at_bats",
+          "balls_in_play",
+          "batted_ball_events",
+          "pitches_seen",
+          "batters_faced",
+          "swings"
+        ],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Only after a reviewed export route is registered."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "reviewed_export_route_required",
+          "versioned_column_and_denominator_contract_required"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "savant_pitch_arsenal_batter",
+      "source": "Baseball Savant",
+      "domain": "pitch_arsenal",
+      "purpose": "Describe batter results and exposure by pitch type or family.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "batter view",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "season or date scope",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "pitch type or documented pitch-family mapping",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "side or hand when used",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "minimum pitches or BIP filters",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [
+          "pitches_seen",
+          "balls_in_play",
+          "batted_ball_events",
+          "plate_appearances"
+        ],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Only after a reviewed export route is registered."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "reviewed_export_route_required",
+          "pitch_family_mapping_must_be_versioned"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "savant_statcast_search_csv",
+      "source": "Baseball Savant",
+      "domain": "statcast_search",
+      "purpose": "Supply reproducible pitch-level or event-level extracts.",
+      "endpoint_template": "https://baseballsavant.mlb.com/statcast_search/csv",
+      "method": "GET",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "enum",
+              "values": [
+                "batter",
+                "pitcher"
+              ]
+            }
+          },
+          {
+            "name": "game_date_gt",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "template",
+              "value": "{game_date_gt}"
+            }
+          },
+          {
+            "name": "game_date_lt",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "template",
+              "value": "{game_date_lt}"
+            }
+          },
+          {
+            "name": "player_type",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "enum",
+              "values": [
+                "batter",
+                "pitcher"
+              ]
+            }
+          },
+          {
+            "name": "player_id",
+            "required": false,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          },
+          {
+            "name": "season",
+            "required": true,
+            "type": "integer",
+            "constraint": {
+              "kind": "positive_integer"
+            }
+          },
+          {
+            "name": "game_type",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "csv",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "const",
+              "value": "true"
+            }
+          }
+        ],
+        "required_context": [],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [
+          "plate_appearances",
+          "at_bats",
+          "balls_in_play",
+          "batted_ball_events",
+          "pitches_seen",
+          "batters_faced",
+          "swings"
+        ],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "CSV",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "game_date",
+          "player_mlbam_id",
+          "opponent_pitcher_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "declared_date_window",
+        "description": "Retrieve only independently auditable chunks."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NOT_PAGINATION",
+        "cap_is_not_pagination": true
+      },
+      "row_limit": 30000,
+      "chunking_contract": {
+        "enabled": true,
+        "max_calendar_days": 5,
+        "inclusive_start_date": true,
+        "inclusive_end_date": true,
+        "at_cap_action": "SUBDIVIDE_BEFORE_PROMOTION",
+        "promotion_requirements": [
+          "compatible_response_types",
+          "compatible_event_taxonomies",
+          "compatible_column_contracts",
+          "compatible_denominator_definitions"
+        ]
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "row_cap_requires_subdivision",
+          "incompatible_chunks_cannot_be_combined"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "CONTRACT_ONLY"
+    },
+    {
+      "endpoint_id": "savant_statcast_park_factors",
+      "source": "Baseball Savant",
+      "domain": "park_factors",
+      "purpose": "Supply park effect by event class and batter handedness.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "season",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "three-year rolling window",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "event type",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "batter side",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "venue selection",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "venue_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Only after a reviewed export route is registered."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract"
+        ],
+        "metadata": [
+          {
+            "name": "index_baseline",
+            "value": "100_is_average",
+            "justification": "Preserve source index."
+          },
+          {
+            "name": "sutter_health_park_status",
+            "value": "UNVERIFIED",
+            "justification": "No valid multi-year park factor."
+          },
+          {
+            "name": "rays_continuity_suspect",
+            "value": true,
+            "justification": "Applies across the 2025 outdoor season."
+          }
+        ],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "savant_bat_tracking",
+      "source": "Baseball Savant",
+      "domain": "bat_tracking",
+      "purpose": "Supply descriptive bat-tracking observations.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "season or date scope",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "batter scope",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "metric selection",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "minimum-swings filters",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "date_bounded_or_game_level_requires_game_date",
+            "required": true,
+            "type": "boolean",
+            "constraint": {
+              "kind": "const",
+              "value": true
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [
+          "swings"
+        ],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": [
+          {
+            "key": "game_date",
+            "justification": "Required when request is date-bounded or response data is game-level."
+          }
+        ]
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Only after a reviewed export route is registered."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract"
+        ],
+        "metadata": [
+          {
+            "name": "availability_beginning",
+            "value": "second_half_2023",
+            "justification": "Source availability boundary."
+          },
+          {
+            "name": "no_multiyear_trends",
+            "value": true,
+            "justification": "Do not construct multiyear trends."
+          },
+          {
+            "name": "squared_up_descriptive_pending_calibration",
+            "value": true,
+            "justification": "Policy-only descriptive status."
+          }
+        ],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "savant_swing_path_attack_angle",
+      "source": "Baseball Savant",
+      "domain": "swing_path",
+      "purpose": "Supply descriptive swing-path and attack-angle observations.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "season or date scope",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "batter scope",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "selected swing-path fields",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "minimum-swings filters",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "date_bounded_or_game_level_requires_game_date",
+            "required": true,
+            "type": "boolean",
+            "constraint": {
+              "kind": "const",
+              "value": true
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [
+          "swings"
+        ],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": [
+          {
+            "key": "game_date",
+            "justification": "Required when request is date-bounded or response data is game-level."
+          }
+        ]
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Only after a reviewed export route is registered."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract"
+        ],
+        "metadata": [
+          {
+            "name": "availability_beginning",
+            "value": "second_half_2023",
+            "justification": "Source availability boundary."
+          },
+          {
+            "name": "no_multiyear_trends",
+            "value": true,
+            "justification": "Do not construct multiyear trends."
+          },
+          {
+            "name": "squared_up_descriptive_pending_calibration",
+            "value": true,
+            "justification": "Policy-only descriptive status."
+          }
+        ],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "fangraphs_the_bat_x",
+      "source": "FanGraphs",
+      "domain": "projection",
+      "purpose": "Retain THE BAT X as a separately labeled projection system.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "projection system=THE BAT X",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "projection date",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "season",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "selected columns",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "player identifier",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Manual reviewed export only."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "manual_export_only",
+          "projection_system_must_remain_separate"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "fangraphs_steamer",
+      "source": "FanGraphs",
+      "domain": "projection",
+      "purpose": "Retain Steamer as a separately labeled projection system.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "projection system=Steamer",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "projection date",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "season",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "selected columns",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "player identifier",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Manual reviewed export only."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "manual_export_only",
+          "projection_system_must_remain_separate"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "fangraphs_atc",
+      "source": "FanGraphs",
+      "domain": "projection",
+      "purpose": "Retain ATC as a separately labeled projection system.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "projection system=ATC",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "projection date",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "season",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "selected columns",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "player identifier",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Manual reviewed export only."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "manual_export_only",
+          "projection_system_must_remain_separate"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "fangraphs_depth_charts",
+      "source": "FanGraphs",
+      "domain": "projection",
+      "purpose": "Retain Depth Charts as a separately labeled projection system.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "projection system=Depth Charts",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "projection date",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "season",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "selected columns",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "player identifier",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Manual reviewed export only."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "manual_export_only",
+          "projection_system_must_remain_separate"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "fangraphs_roster_resource",
+      "source": "FanGraphs",
+      "domain": "roster",
+      "purpose": "Retain roster and availability context without lineup confirmation.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "snapshot date/time",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "team and player identifiers",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "selected context fields",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "MANUAL_EXPORT",
+        "response_type": "TABULAR"
+      },
+      "canonical_keys": {
+        "required": [
+          "player_mlbam_id",
+          "season"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "operator_export",
+        "description": "Manual reviewed export only."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "manual_export_only",
+          "not_official_lineup_confirmation"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "NON_AUTOMATED"
+    },
+    {
+      "endpoint_id": "deferred_weather_interface",
+      "source": "Deferred interface",
+      "domain": "weather",
+      "purpose": "Reserve a provider-neutral future weather evidence interface.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "game identity",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "venue identity",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "valid and retrieval timestamps",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "provider location key",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "submitted request",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "DEFERRED_INTERFACE",
+        "response_type": "INTERFACE"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "venue_mlbam_id",
+          "game_date"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "future_provider_registration",
+        "description": "No retrieval is authorized."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "provider_neutral_deferred_interface",
+          "closed_or_unknown_roof_omits_observation",
+          "incomplete_bearing_or_provenance_omits_observation"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "DEFERRED"
+    },
+    {
+      "endpoint_id": "deferred_market_interface",
+      "source": "Deferred interface",
+      "domain": "market",
+      "purpose": "Reserve a future market evidence interface.",
+      "endpoint_template": null,
+      "method": "NONE",
+      "parameter_contract": {
+        "path_parameters": [],
+        "query_parameters": [],
+        "required_context": [
+          {
+            "name": "source",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "book",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "market identifier",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "timestamp",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "normalized event and player IDs",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "raw provider event and participant identifiers",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          },
+          {
+            "name": "provenance",
+            "required": true,
+            "type": "string",
+            "constraint": {
+              "kind": "text"
+            }
+          }
+        ],
+        "preserve_submitted_parameters": true,
+        "denominator_definitions": [],
+        "extensions": []
+      },
+      "response_format": {
+        "format": "DEFERRED_INTERFACE",
+        "response_type": "INTERFACE"
+      },
+      "canonical_keys": {
+        "required": [
+          "game_pk",
+          "player_mlbam_id"
+        ],
+        "supplemental": []
+      },
+      "retrieval_cadence": {
+        "trigger": "future_interface_registration",
+        "description": "No retrieval is authorized."
+      },
+      "freshness_ttl_minutes": null,
+      "pagination_contract": {
+        "mode": "NONE",
+        "cap_is_not_pagination": false
+      },
+      "row_limit": null,
+      "chunking_contract": {
+        "enabled": false,
+        "max_calendar_days": null,
+        "inclusive_start_date": false,
+        "inclusive_end_date": false,
+        "at_cap_action": "NOT_APPLICABLE",
+        "promotion_requirements": []
+      },
+      "provenance_fields": {
+        "source": true,
+        "endpoint_or_url": true,
+        "submitted_parameters": true,
+        "retrieved_at_utc": true,
+        "raw_response_hash": true,
+        "row_count_when_relevant": true,
+        "canonical_keys": true,
+        "source_freshness_status": true,
+        "source_failure_status": true
+      },
+      "exception_policy": {
+        "fail_closed_reasons": [
+          "numeric_ttl_not_specified_in_source_contract",
+          "future_interface_only",
+          "missing_required_market_evidence_is_unverified"
+        ],
+        "metadata": [],
+        "extensions": []
+      },
+      "implementation_status": "DEFERRED"
+    }
+  ]
+}

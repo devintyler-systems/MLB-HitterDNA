@@ -1,0 +1,11 @@
+{
+  "missing_provenance_field": {"remove": "raw_response_hash"},
+  "lowercase_health_state": {"freshness": "pass", "failure": "PASS"},
+  "unknown_health_state": {"freshness": "PASS", "failure": "UNKNOWN"},
+  "unapproved_top_level_entry_field": {"add": ["unreviewed", true]},
+  "missing_canonical_keys": {"replace": ["required", []]},
+  "invented_numeric_freshness_ttl": {"replace": ["freshness_ttl_minutes", 60]},
+  "invalid_response_format": {"replace": ["response_format", {"format": "CSV", "response_type": "OBJECT"}]},
+  "row_limit_or_chunking_contradiction": {"replace": ["max_calendar_days", 6]},
+  "automated_non_automated_source": {"replace": ["implementation_status", "AUTOMATED"]}
+}

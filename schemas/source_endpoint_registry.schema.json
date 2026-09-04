@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HitterDNA Source Endpoint Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_version", "entries"],
+  "properties": {
+    "registry_version": {"type": "string", "const": "1"},
+    "entries": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "extension": {"type": "object", "additionalProperties": false, "required": ["name", "value", "justification"], "properties": {"name": {"type": "string", "minLength": 1}, "value": {}, "justification": {"type": "string", "minLength": 1}}},
+    "entry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["endpoint_id", "source", "domain", "purpose", "endpoint_template", "method", "parameter_contract", "response_format", "canonical_keys", "retrieval_cadence", "freshness_ttl_minutes", "pagination_contract", "row_limit", "chunking_contract", "provenance_fields", "exception_policy", "implementation_status"],
+      "properties": {
+        "endpoint_id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+        "source": {"type": "string", "enum": ["MLB Stats API", "Baseball Savant", "FanGraphs", "Deferred interface"]},
+        "domain": {"type": "string", "enum": ["schedule", "game", "lineup", "pitcher", "identity", "transactions", "boxscore", "expected_statistics", "custom_leaderboard", "pitch_arsenal", "statcast_search", "park_factors", "bat_tracking", "swing_path", "projection", "roster", "weather", "market"]},
+        "purpose": {"type": "string", "minLength": 1},
+        "endpoint_template": {"oneOf": [{"type": "null"}, {"type": "string", "format": "uri"}]},
+        "method": {"type": "string", "enum": ["GET", "NONE"]},
+        "parameter_contract": {"$ref": "#/$defs/parameter_contract"},
+        "response_format": {"$ref": "#/$defs/response_format"},
+        "canonical_keys": {"$ref": "#/$defs/canonical_keys"},
+        "retrieval_cadence": {"$ref": "#/$defs/retrieval_cadence"},
+        "freshness_ttl_minutes": {"type": "null"},
+        "pagination_contract": {"$ref": "#/$defs/pagination_contract"},
+        "row_limit": {"oneOf": [{"type": "null"}, {"type": "integer", "minimum": 1}]},
+        "chunking_contract": {"$ref": "#/$defs/chunking_contract"},
+        "provenance_fields": {"$ref": "#/$defs/provenance_fields"},
+        "exception_policy": {"$ref": "#/$defs/exception_policy"},
+        "implementation_status": {"type": "string", "enum": ["AUTOMATED", "CONTRACT_ONLY", "NON_AUTOMATED", "DEFERRED"]}
+      }
+    },
+    "parameter_contract": {"type": "object", "additionalProperties": false, "required": ["path_parameters", "query_parameters", "required_context", "preserve_submitted_parameters", "denominator_definitions", "extensions"], "properties": {"path_parameters": {"type": "array", "items": {"$ref": "#/$defs/parameter"}}, "query_parameters": {"type": "array", "items": {"$ref": "#/$defs/parameter"}}, "required_context": {"type": "array", "items": {"$ref": "#/$defs/parameter"}}, "request_variants": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/request_variant"}}, "preserve_submitted_parameters": {"const": true}, "denominator_definitions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "enum": ["plate_appearances", "at_bats", "balls_in_play", "batted_ball_events", "pitches_seen", "batters_faced", "swings"]}}, "extensions": {"type": "array", "items": {"$ref": "#/$defs/extension"}}}},
+    "parameter": {"type": "object", "additionalProperties": false, "required": ["name", "required", "type", "constraint"], "properties": {"name": {"type": "string", "minLength": 1}, "required": {"type": "boolean"}, "type": {"type": "string", "enum": ["integer", "string", "boolean"]}, "constraint": {"$ref": "#/$defs/constraint"}}},
+    "constraint": {"type": "object", "additionalProperties": false, "required": ["kind"], "properties": {"kind": {"type": "string", "enum": ["const", "enum", "template", "positive_integer", "text"]}, "value": {}, "values": {"type": "array", "minItems": 1, "uniqueItems": true}}},
+    "request_variant": {"type": "object", "additionalProperties": false, "required": ["endpoint_template", "method", "path_parameters", "query_parameters", "selection_rule"], "properties": {"endpoint_template": {"type": "string", "format": "uri"}, "method": {"const": "GET"}, "path_parameters": {"type": "array", "items": {"$ref": "#/$defs/parameter"}}, "query_parameters": {"type": "array", "items": {"$ref": "#/$defs/parameter"}}, "selection_rule": {"type": "string", "minLength": 1}}},
+    "response_format": {"type": "object", "additionalProperties": false, "required": ["format", "response_type"], "properties": {"format": {"type": "string", "enum": ["JSON", "CSV", "MANUAL_EXPORT", "DEFERRED_INTERFACE"]}, "response_type": {"type": "string", "enum": ["OBJECT", "TABULAR", "INTERFACE"]}}},
+    "canonical_keys": {"type": "object", "additionalProperties": false, "required": ["required", "supplemental"], "properties": {"required": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "enum": ["game_pk", "player_mlbam_id", "opponent_pitcher_mlbam_id", "venue_mlbam_id", "season", "game_date"]}}, "supplemental": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["key", "justification"], "properties": {"key": {"type": "string", "minLength": 1}, "justification": {"type": "string", "minLength": 1}}}}}},
+    "retrieval_cadence": {"type": "object", "additionalProperties": false, "required": ["trigger", "description"], "properties": {"trigger": {"type": "string", "minLength": 1}, "description": {"type": "string", "minLength": 1}}},
+    "pagination_contract": {"type": "object", "additionalProperties": false, "required": ["mode", "cap_is_not_pagination"], "properties": {"mode": {"type": "string", "enum": ["NONE", "NOT_PAGINATION"]}, "cap_is_not_pagination": {"type": "boolean"}}},
+    "chunking_contract": {"type": "object", "additionalProperties": false, "required": ["enabled", "max_calendar_days", "inclusive_start_date", "inclusive_end_date", "at_cap_action", "promotion_requirements"], "properties": {"enabled": {"type": "boolean"}, "max_calendar_days": {"oneOf": [{"type": "null"}, {"type": "integer", "minimum": 1}]}, "inclusive_start_date": {"type": "boolean"}, "inclusive_end_date": {"type": "boolean"}, "at_cap_action": {"type": "string", "enum": ["NOT_APPLICABLE", "SUBDIVIDE_BEFORE_PROMOTION"]}, "promotion_requirements": {"type": "array", "uniqueItems": true, "items": {"type": "string", "enum": ["compatible_response_types", "compatible_event_taxonomies", "compatible_column_contracts", "compatible_denominator_definitions"]}}}},
+    "provenance_fields": {"type": "object", "additionalProperties": false, "required": ["source", "endpoint_or_url", "submitted_parameters", "retrieved_at_utc", "raw_response_hash", "row_count_when_relevant", "canonical_keys", "source_freshness_status", "source_failure_status"], "properties": {"source": {"const": true}, "endpoint_or_url": {"const": true}, "submitted_parameters": {"const": true}, "retrieved_at_utc": {"const": true}, "raw_response_hash": {"const": true}, "row_count_when_relevant": {"const": true}, "canonical_keys": {"const": true}, "source_freshness_status": {"const": true}, "source_failure_status": {"const": true}}},
+    "exception_policy": {"type": "object", "additionalProperties": false, "required": ["fail_closed_reasons", "metadata", "extensions"], "properties": {"fail_closed_reasons": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}, "metadata": {"type": "array", "items": {"$ref": "#/$defs/extension"}}, "extensions": {"type": "array", "items": {"$ref": "#/$defs/extension"}}}}
+  }
+}
