@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HitterDNA Slate Run v0 artifact envelope",
+  "oneOf": [
+    {"$ref": "#/$defs/run_manifest"}, {"$ref": "#/$defs/slate_context"},
+    {"$ref": "#/$defs/confirmed_lineups"}, {"$ref": "#/$defs/starter_context"},
+    {"$ref": "#/$defs/expected_statistics"}, {"$ref": "#/$defs/filter_table"},
+    {"$ref": "#/$defs/discovery_queue"}, {"$ref": "#/$defs/exclusions"},
+    {"$ref": "#/$defs/validation_report"}
+  ],
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "required": ["artifact_type", "schema_version", "game_date", "generated_at_utc", "status", "provenance", "data"],
+      "properties": {
+        "artifact_type": {"type": "string"}, "schema_version": {"const": "slate-run-v0"},
+        "game_date": {"type": "string", "format": "date"},
+        "generated_at_utc": {"type": "string", "format": "date-time"},
+        "status": {"enum": ["PASS", "FAIL", "UNVERIFIED", "STALE", "RETRYABLE", "TERMINAL"]},
+        "provenance": {"type": "object", "minProperties": 1}, "data": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "run_manifest": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "run_manifest"}, "data": {"$ref": "#/$defs/run_manifest_data"}}}]},
+    "slate_context": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "slate_context"}, "data": {"$ref": "#/$defs/games_data"}}}]},
+    "confirmed_lineups": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "confirmed_lineups"}, "data": {"$ref": "#/$defs/games_data"}}}]},
+    "starter_context": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "starter_context"}, "data": {"$ref": "#/$defs/games_data"}}}]},
+    "expected_statistics": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "expected_statistics"}, "data": {"$ref": "#/$defs/rows_data"}}}]},
+    "filter_table": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "filter_table"}, "data": {"$ref": "#/$defs/candidates_data"}}}]},
+    "discovery_queue": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "discovery_queue"}, "data": {"$ref": "#/$defs/records_data"}}}]},
+    "exclusions": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "exclusions"}, "data": {"$ref": "#/$defs/records_data"}}}]},
+    "validation_report": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "validation_report"}, "data": {"$ref": "#/$defs/validation_report_data"}}}]},
+    "run_manifest_data": {
+      "type": "object", "required": ["fixture_path", "network_mode", "artifact_types", "unavailable_sources"],
+      "properties": {"fixture_path": {"type": "string"}, "network_mode": {"const": "disabled"}, "artifact_types": {"type": "array"}, "unavailable_sources": {"type": "array"}},
+      "additionalProperties": false
+    },
+    "games_data": {"type": "object", "required": ["games"], "properties": {"games": {"type": "array"}}, "additionalProperties": false},
+    "rows_data": {"type": "object", "required": ["rows"], "properties": {"rows": {"type": "array"}}, "additionalProperties": false},
+    "candidates_data": {"type": "object", "required": ["candidates"], "properties": {"candidates": {"type": "array"}}, "additionalProperties": false},
+    "records_data": {"type": "object", "required": ["records"], "properties": {"records": {"type": "array"}}, "additionalProperties": false},
+    "validation_report_data": {
+      "type": "object", "required": ["status", "registry_status", "source_contracts"],
+      "properties": {"status": {"type": "string"}, "registry_status": {"type": "string"}, "source_contracts": {"type": "array"}},
+      "additionalProperties": false
+    }
+  }
+}

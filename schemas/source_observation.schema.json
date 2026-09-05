@@ -1,0 +1,24 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"HitterDNA Slate Run v0 source observation",
+  "type":"object",
+  "required":["endpoint_id","provenance","retrieval_status"],
+  "properties":{
+    "endpoint_id":{"type":"string","minLength":1,"pattern":".*\\S.*"},
+    "retrieval_status":{"enum":["PASS","FAIL","UNVERIFIED","STALE","RETRYABLE","TERMINAL"]},
+    "provenance":{
+      "type":"object",
+      "required":["source","endpoint_or_url","submitted_parameters","retrieved_at_utc","raw_response_hash","row_count_when_relevant","canonical_keys","source_freshness_status","source_failure_status"],
+      "properties":{
+        "source":{"type":"string","minLength":1}, "endpoint_or_url":{"type":"string","minLength":1},
+        "submitted_parameters":{"type":"object"}, "retrieved_at_utc":{"type":"string","format":"date-time","pattern":"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?(?:Z|[+-][0-9]{2}:[0-9]{2})$"},
+        "raw_response_hash":{"type":"string","minLength":1},
+        "row_count_when_relevant":{"type":["null","integer"],"minimum":0},
+        "canonical_keys":{"type":"object"},
+        "source_freshness_status":{"enum":["PASS","STALE","UNVERIFIED"]},
+        "source_failure_status":{"enum":["PASS","FAIL","RETRYABLE","TERMINAL","UNVERIFIED"]}
+      }, "additionalProperties":false
+    }
+  },
+  "additionalProperties":false
+}
