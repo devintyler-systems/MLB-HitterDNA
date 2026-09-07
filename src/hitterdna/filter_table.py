@@ -249,6 +249,24 @@ def serialize_filter_table(table: CandidateFilterTable) -> dict[str, Any]:
     }
 
 
+def confirmed_lineup_display_fields(serialized_table: Mapping[str, Any]) -> dict[str, str | int] | None:
+    """Return the confirmed team abbreviation and official slot for display.
+
+    This reads the existing filter-table cell fields only; it does not infer or
+    re-evaluate lineup confirmation.
+    """
+
+    results = serialized_table.get("results")
+    if not isinstance(results, list) or not results or not isinstance(results[0], Mapping):
+        return None
+    first = results[0]
+    team = first.get("team_abbreviation")
+    slot = first.get("batting_order")
+    if not isinstance(team, str) or not team or not isinstance(slot, int) or isinstance(slot, bool) or slot not in range(1, 10):
+        return None
+    return {"team_abbreviation": team, "batting_order": slot}
+
+
 def candidate_can_advance(table: CandidateFilterTable) -> bool:
     """Return whether the table has no failed or unverified required result."""
 

@@ -13,6 +13,7 @@ from hitterdna.filter_table import (
     ThresholdRegistry,
     build_candidate_filter_table,
     candidate_can_advance,
+    confirmed_lineup_display_fields,
     evaluate_filter,
     serialize_filter_table,
 )
@@ -264,6 +265,16 @@ def test_serialized_result_preserves_every_audit_field_and_validates_schema() ->
     assert result["threshold_source_url"] == "https://example.invalid/thresholds/v1"
     assert result["threshold_retrieved_at_utc"] == "2030-01-01T00:00:00Z"
     jsonschema.validate(serialized, schema)
+
+
+def test_confirmed_lineup_display_fields_uses_existing_filter_table_cell_values() -> None:
+    serialized = serialize_filter_table(build_table())
+
+    assert confirmed_lineup_display_fields(serialized) == {
+        "team_abbreviation": "SYN", "batting_order": 3,
+    }
+    serialized["results"][0]["batting_order"] = None
+    assert confirmed_lineup_display_fields(serialized) is None
 
 
 def test_schema_rejects_missing_required_audit_field_and_extra_properties() -> None:

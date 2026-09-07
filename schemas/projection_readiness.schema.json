@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HitterDNA Hit Probability v0 readiness artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["target", "target_definition", "as_of_utc", "scheduled_first_pitch_utc", "no_probability_status", "model_publication_status", "training_status", "pregame_inference_status", "feature_readiness", "blockers"],
+  "properties": {
+    "target": {"const": "hit_probability_v0"},
+    "target_definition": {"const": "P(at least one official hit in a game | information available before first pitch)"},
+    "as_of_utc": {"$ref": "#/$defs/utc_date_time"},
+    "scheduled_first_pitch_utc": {"$ref": "#/$defs/utc_date_time"},
+    "no_probability_status": {"const": "NO_PROBABILITY_CALCULATED"},
+    "model_publication_status": {"const": "MODEL_NOT_IMPLEMENTED"},
+    "training_status": {"$ref": "#/$defs/status"},
+    "pregame_inference_status": {"$ref": "#/$defs/status"},
+    "feature_readiness": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"$ref": "#/$defs/feature"}},
+    "blockers": {"type": "array", "items": {"$ref": "#/$defs/blocker"}}
+  },
+  "$defs": {
+    "status": {"enum": ["READY", "UNVERIFIED", "STALE", "RETRYABLE", "TERMINAL", "DEFERRED"]},
+    "utc_date_time": {"type": "string", "format": "date-time", "pattern": "(?:Z|\\+00:00)$"},
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "endpoint_or_url", "retrieved_at_utc", "raw_response_hash", "source_freshness_status", "source_failure_status"],
+      "properties": {
+        "source": {"type": ["string", "null"]}, "endpoint_or_url": {"type": ["string", "null"]},
+        "retrieved_at_utc": {"type": ["string", "null"]}, "raw_response_hash": {"type": ["string", "null"]},
+        "source_freshness_status": {"type": ["string", "null"]}, "source_failure_status": {"type": ["string", "null"]}
+      }
+    },
+    "feature": {
+      "type": "object", "additionalProperties": false,
+      "required": ["feature_family", "required_source_endpoint", "canonical_keys", "status", "reason", "provenance_reference", "available_at_utc", "paired_pregame_snapshot"],
+      "properties": {
+        "feature_family": {"enum": ["historical_labels", "lineup_pa", "hitter_baseline", "starter_handedness", "regressed_platoon", "arsenal_fit", "park", "bearing_relative_weather"]},
+        "required_source_endpoint": {"type": "string", "minLength": 1},
+        "canonical_keys": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "status": {"$ref": "#/$defs/status"}, "reason": {"type": ["string", "null"]},
+        "provenance_reference": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/provenance"}]},
+        "available_at_utc": {"type": ["string", "null"]},
+        "paired_pregame_snapshot": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/paired_pregame_snapshot"}]}
+      }
+    },
+    "paired_pregame_snapshot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_reference_or_url", "raw_response_hash", "retrieved_at_utc", "available_at_utc", "canonical_keys"],
+      "properties": {
+        "source_reference_or_url": {"type": ["string", "null"]},
+        "raw_response_hash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "retrieved_at_utc": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/utc_date_time"}]},
+        "available_at_utc": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/utc_date_time"}]},
+        "canonical_keys": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "object", "additionalProperties": false, "required": ["game_pk", "player_mlbam_id"], "properties": {
+              "game_pk": {"type": "integer", "minimum": 1},
+              "player_mlbam_id": {"type": "integer", "minimum": 1}
+            }}
+          ]
+        }
+      }
+    },
+    "blocker": {
+      "type": "object", "additionalProperties": false,
+      "required": ["feature_family", "required_source_endpoint", "canonical_keys", "reason", "prevents_training", "prevents_pregame_inference"],
+      "properties": {
+        "feature_family": {"type": "string", "minLength": 1}, "required_source_endpoint": {"type": "string", "minLength": 1},
+        "canonical_keys": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "reason": {"type": "string", "minLength": 1}, "prevents_training": {"type": "boolean"}, "prevents_pregame_inference": {"type": "boolean"}
+      }
+    }
+  }
+}
