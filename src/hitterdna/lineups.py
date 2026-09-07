@@ -129,8 +129,10 @@ def normalize_game_lineups(
     """Purely normalize an MLB live-feed payload into conservative lineups.
 
     A feed-side ``battingOrder`` is the only lineup evidence accepted here.
-    Player, roster, active-status, and position fields are used only to
-    describe entries already present in that ordered lineup evidence.
+    The ordered array itself establishes slots 1 through 9.  Player, roster,
+    active-status, and position fields are used only to describe its entries;
+    the optional per-player ``stats.batting.battingOrder`` field is not a
+    second confirmation requirement and is absent in current StatsAPI feeds.
     """
 
     source_url = game_feed_url(game_context.game_pk)
@@ -251,6 +253,7 @@ def _normalize_team_lineup(
     provisional_players = tuple(
         _lineup_player_from_order_entry(
             order_entry,
+            batting_order=slot,
             player_records=player_records,
             game_pk=game_pk,
             team_id=team_id,
@@ -258,7 +261,7 @@ def _normalize_team_lineup(
             source_url=source_url,
             retrieved_at_utc=retrieved_at_utc,
         )
-        for order_entry in batting_order
+        for slot, order_entry in enumerate(batting_order, start=1)
     )
     confirmed_players = tuple(
         replace(player, lineup_status="confirmed") for player in provisional_players
@@ -276,6 +279,7 @@ def _normalize_team_lineup(
 def _lineup_player_from_order_entry(
     order_entry: Any,
     *,
+    batting_order: int,
     player_records: Mapping[str, Any],
     game_pk: int,
     team_id: int | None,
@@ -285,16 +289,20 @@ def _lineup_player_from_order_entry(
 ) -> LineupPlayer:
     player_record = _player_record(player_records, order_entry)
     person = _mapping(player_record.get("person"))
-    batting = _mapping(_mapping(player_record.get("stats")).get("batting"))
     position = _mapping(player_record.get("position"))
+    order_player_id = _positive_integer(order_entry)
+    record_player_id = _positive_integer(person.get("id"))
     return LineupPlayer(
         game_pk=game_pk,
         team_id=team_id,
         team_abbreviation=team_abbreviation,
-        player_mlbam_id=_positive_integer(person.get("id")),
+        # The ordered entry and its player record must agree on the same
+        # canonical MLBAM ID; a roster-shaped mismatch never becomes lineup
+        # evidence.
+        player_mlbam_id=record_player_id if record_player_id == order_player_id else None,
         player_name=_string(person.get("fullName")) or "",
         lineup_status="unconfirmed",
-        batting_order=normalize_batting_order(batting.get("battingOrder")),
+        batting_order=batting_order,
         position=_string(position.get("abbreviation")),
         source_url=source_url,
         retrieved_at_utc=retrieved_at_utc,

@@ -100,13 +100,13 @@ def test_duplicate_player_id_makes_side_unconfirmed() -> None:
     assert lineups.away_lineup.lineup_status == "unconfirmed"
 
 
-def test_duplicate_batting_slot_makes_side_unconfirmed() -> None:
+def test_player_batting_order_field_is_not_a_second_confirmation_requirement() -> None:
     payload = load_confirmed_game()
     payload["liveData"]["boxscore"]["teams"]["away"]["players"]["ID109"]["stats"]["batting"]["battingOrder"] = "100"
 
     lineups = normalize_game_lineups(game_context(), payload, RETRIEVED_AT)
 
-    assert lineups.away_lineup.lineup_status == "unconfirmed"
+    assert lineups.away_lineup.lineup_status == "confirmed"
 
 
 def test_missing_player_id_makes_side_unconfirmed() -> None:
@@ -118,14 +118,37 @@ def test_missing_player_id_makes_side_unconfirmed() -> None:
     assert lineups.away_lineup.lineup_status == "unconfirmed"
 
 
+def test_mismatched_or_noncanonical_order_entry_makes_side_unconfirmed() -> None:
+    payload = load_confirmed_game()
+    payload["liveData"]["boxscore"]["teams"]["away"]["players"]["ID101"]["person"]["id"] = 999
+    assert normalize_game_lineups(game_context(), payload, RETRIEVED_AT).away_lineup.lineup_status == "unconfirmed"
+
+    payload = load_confirmed_game()
+    payload["liveData"]["boxscore"]["teams"]["away"]["battingOrder"][0] = "101"
+    assert normalize_game_lineups(game_context(), payload, RETRIEVED_AT).away_lineup.lineup_status == "unconfirmed"
+
+
 @pytest.mark.parametrize("value", [None, "not-a-number", "1000"])
-def test_missing_or_invalid_batting_order_makes_side_unconfirmed(value: Any) -> None:
+def test_ordered_array_confirms_when_player_batting_order_field_is_absent_or_invalid(value: Any) -> None:
     payload = load_confirmed_game()
     payload["liveData"]["boxscore"]["teams"]["away"]["players"]["ID101"]["stats"]["batting"]["battingOrder"] = value
 
     lineups = normalize_game_lineups(game_context(), payload, RETRIEVED_AT)
 
-    assert lineups.away_lineup.lineup_status == "unconfirmed"
+    assert lineups.away_lineup.lineup_status == "confirmed"
+
+
+def test_captured_current_statsapi_shape_uses_array_index_as_official_slot() -> None:
+    payload = load_confirmed_game()
+    away = payload["liveData"]["boxscore"]["teams"]["away"]
+    for record in away["players"].values():
+        record["stats"]["batting"].pop("battingOrder", None)
+
+    lineups = normalize_game_lineups(game_context(), payload, RETRIEVED_AT)
+
+    assert lineups.away_lineup.lineup_status == "confirmed"
+    assert [player.player_mlbam_id for player in lineups.away_lineup.players] == away["battingOrder"]
+    assert [player.batting_order for player in lineups.away_lineup.players] == list(range(1, 10))
 
 
 def test_ineligible_game_does_not_call_http() -> None:

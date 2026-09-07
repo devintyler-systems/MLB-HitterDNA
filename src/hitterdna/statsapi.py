@@ -161,7 +161,7 @@ def classify_pregame_eligibility(game_status: str | None) -> PregameEligibility:
         return "urgent_refresh"
     if game_status == "In Progress":
         return "exclude_in_progress"
-    if game_status in {"Final", "Postponed", "Cancelled", "Suspended"}:
+    if game_status in {"Final", "Game Over", "Completed Early", "Postponed", "Cancelled", "Suspended"}:
         return "exclude_terminal"
     return "hold_unknown"
 

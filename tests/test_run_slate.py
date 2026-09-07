@@ -141,6 +141,83 @@ def test_normal_eligible_fixture_has_pass_statuses_and_advances_known_player(tmp
     }
     assert artifact["validation_report"]["data"]["status"] == "PASS"
     assert artifact["discovery_queue"]["data"]["records"][0]["player_mlbam_id"] == 101
+    table = artifact["filter_table"]["data"]["candidates"][0]
+    assert table["candidate_disposition"] == "advance"
+    assert [result["actual_value"] for result in table["results"]] == [0.28, 100]
+    assert {result["status"] for result in table["results"]} == {"PASS"}
+    assert {result["policy_source_reference"] for result in table["results"]} == {"docs/filter-thresholds.md"}
+    assert {result["policy_version"] for result in table["results"]} == {"filter-thresholds-v0.1"}
+    assert artifact["filter_table"]["data"]["policy_provenance"]["content_sha256"] == table["results"][0]["policy_content_sha256"]
+
+
+@pytest.mark.parametrize(
+    ("filter_contract", "reason_prefix"),
+    [
+        ({"policy_source_reference": "docs/does-not-exist.md"}, "FILTER_POLICY_MISSING"),
+        ({"policy_content_sha256": "0" * 64}, "FILTER_POLICY_HASH_MISMATCH"),
+    ],
+)
+def test_invalid_filter_policy_fails_closed_with_machine_readable_exclusions(
+    tmp_path: Path, filter_contract: dict[str, str], reason_prefix: str,
+) -> None:
+    artifact = build_slate_run("2030-01-01", fixture(tmp_path, lambda data: data.update(filter=filter_contract)))
+    assert artifact["discovery_queue"]["data"]["records"] == []
+    tables = artifact["filter_table"]["data"]["candidates"]
+    assert tables and all(row["results"][0]["status"] == "UNVERIFIED" for row in tables)
+    assert all(row["results"][0]["reason"].startswith(reason_prefix) for row in tables)
+    assert artifact["filter_table"]["data"]["policy_provenance"]["load_status"] == "unverified"
+
+
+@pytest.mark.parametrize(
+    ("content", "reason_prefix"),
+    [
+        ("# missing policy block\n", "FILTER_POLICY_MALFORMED"),
+        ("<!-- HITTERDNA_FILTER_POLICY_BEGIN -->\n```json\n{\"filter_policy\": {\"policy_version\": \"v1\", \"definitions\": [], \"thresholds\": {}}}\n```\n<!-- HITTERDNA_FILTER_POLICY_END -->\n", "FILTER_POLICY_NO_REQUIRED_DEFINITIONS"),
+        ("<!-- HITTERDNA_FILTER_POLICY_BEGIN -->\n```json\n{\"filter_policy\": {\"policy_version\": \"v1\", \"definitions\": [{\"filter_id\": \"x\", \"filter_version\": \"v1\", \"filter_name\": \"x\", \"required\": true, \"metric_key\": \"expected_batting_average\", \"operator\": \"gte\", \"threshold_ref\": \"missing\", \"allowed_values\": null, \"custom_rule_id\": null, \"description\": \"x\"}], \"thresholds\": {}}}\n```\n<!-- HITTERDNA_FILTER_POLICY_END -->\n", "FILTER_POLICY_REQUIRED_THRESHOLD_MISSING"),
+    ],
+)
+def test_malformed_policy_documents_never_create_discovery_candidates(
+    tmp_path: Path, content: str, reason_prefix: str,
+) -> None:
+    policy_path = tmp_path / "policy.md"
+    policy_path.write_text(content, encoding="utf-8")
+    artifact = build_slate_run(
+        "2030-01-01",
+        fixture(tmp_path, lambda data: data.update(filter={"policy_source_reference": str(policy_path)})),
+    )
+    assert artifact["discovery_queue"]["data"]["records"] == []
+    assert all(
+        row["results"][0]["reason"].startswith(reason_prefix)
+        for row in artifact["filter_table"]["data"]["candidates"]
+    )
+
+
+def test_missing_required_h1_observation_excludes_without_queue_admission(tmp_path: Path) -> None:
+    def mutate(data: dict) -> None:
+        data["expected_statistics"]["payload"] = (
+            "player_id,player_name,year,pa,est_woba\n101,Away 1,2030,100,0.400\n"
+        )
+
+    artifact = build_slate_run("2030-01-01", fixture(tmp_path, mutate))
+    assert artifact["discovery_queue"]["data"]["records"] == []
+    result = artifact["filter_table"]["data"]["candidates"][0]["results"][0]
+    assert result["status"] == "UNVERIFIED"
+    assert result["actual_value"] is None
+    assert result["reason"] == "metric value is missing"
+
+
+def test_h1_availability_gate_uses_valid_raw_savant_observation_without_stabilization_policy(tmp_path: Path) -> None:
+    artifact = build_slate_run(
+        "2030-01-01", fixture(tmp_path, lambda data: data["expected_statistics"].pop("stabilization_policy_path"))
+    )
+    records = artifact["discovery_queue"]["data"]["records"]
+    assert [record["player_mlbam_id"] for record in records] == [101]
+    assert records[0]["stabilization_status"] == "not_applicable"
+    assert "stabilized" not in records[0]["raw_claim"]
+    result = artifact["filter_table"]["data"]["candidates"][0]["results"][0]
+    assert result["actual_value"] == 0.28
+    assert result["stabilization_status"] == "unverified"
+    assert result["status"] == "PASS"
 
 
 def test_terminal_required_source_returns_terminal_package_without_candidates(tmp_path: Path) -> None:
@@ -292,6 +369,8 @@ def test_artifact_schema_rejects_invalid_envelope_and_data(
         ("endpoint_or_url", ""),
         ("retrieved_at_utc", "not-a-date-time"),
         ("raw_response_hash", ""),
+        ("raw_response_hash", "{\"700001\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"),
+        ("raw_response_hash", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
         ("row_count_when_relevant", "1"),
         ("row_count_when_relevant", -1),
         ("row_count_when_relevant", 1.5),

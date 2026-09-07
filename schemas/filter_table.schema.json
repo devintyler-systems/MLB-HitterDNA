@@ -74,6 +74,10 @@
           "threshold_value": {"type": ["number", "string", "null"]},
           "threshold_source_url": {"type": ["string", "null"]},
           "threshold_retrieved_at_utc": {"type": ["string", "null"]},
+          "policy_source_reference": {"type": ["string", "null"]},
+          "policy_loaded_at_utc": {"type": ["string", "null"]},
+          "policy_version": {"type": ["string", "null"]},
+          "policy_content_sha256": {"type": ["string", "null"]},
           "status": {"type": "string", "enum": ["PASS", "FAIL", "UNVERIFIED"]},
           "reason": {"type": "string"}
         }

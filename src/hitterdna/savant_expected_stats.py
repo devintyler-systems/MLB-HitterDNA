@@ -21,7 +21,6 @@ SAVANT_EXPECTED_STATS_URL = (
 SOURCE_NAME = "Baseball Savant Expected Statistics"
 FETCH_TIMEOUT_SECONDS = 10.0
 
-
 @dataclass(frozen=True)
 class SavantExpectedStatsRow:
     player_mlbam_id: int | None
@@ -241,7 +240,7 @@ def _first_value(row: Mapping[str, Any], aliases: tuple[str, ...]) -> Any:
 
 
 def _player_name(row: Mapping[str, Any]) -> str | None:
-    name = _text_value(_first_value(row, ("player_name", "name", "player")))
+    name = _text_value(_first_value(row, ("player_name", "name", "player", "last_name, first_name")))
     if name:
         return name
     first_name = _text_value(_first_value(row, ("first_name", "firstname")))

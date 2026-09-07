@@ -20,6 +20,12 @@ accepts documented presentation aliases such as `playerId`, `season`, `bip`,
 `xba`, `xslg`, and `xwoba`, case-insensitively. It accepts JSON collections
 named `data`, `rows`, or `results` when supplied directly to the pure parser.
 
+The authorized CSV observed in the local snapshot has a UTF-8 BOM and the
+quoted header `last_name, first_name` for the descriptive player label. The
+adapter accepts that exact header alias in addition to `player_name`; the CSV
+reader handles its embedded comma. The label remains descriptive: only MLBAM
+`player_id` is a canonical join key.
+
 Blank or null-like numeric cells normalize to `None`; other invalid numeric
 cells make the payload malformed. Rows without a player name or valid season
 are rejected. A missing or invalid player ID remains `None`; this adapter never

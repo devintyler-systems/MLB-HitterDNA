@@ -12,6 +12,54 @@ Every row emitted by the daily screen must retain: `as_of_date`, `gamePk`, `play
 
 No market price, fair probability, edge, stake, or recommendation logic belongs in this file. Those belong in the market and model layers after baseline calibration exists.
 
+### 1.1 Executable local policy contract
+
+The fenced contract below is the sole machine-readable policy payload for the
+current local Slate Run. It implements the documented Hits H1
+evidence-completeness gate only: season xBA and PA must be present in the
+captured Savant Expected Statistics response. `present` is an availability
+check, not a performance cutpoint or a stabilization claim, so it deliberately
+has no numeric threshold. Other documented gates remain unavailable until their
+required source-backed inputs are added and must not be inferred from this
+contract.
+
+<!-- HITTERDNA_FILTER_POLICY_BEGIN -->
+```json
+{
+  "filter_policy": {
+    "policy_version": "filter-thresholds-v0.1",
+    "definitions": [
+      {
+        "filter_id": "H1-xba-present",
+        "filter_version": "filter-thresholds-v0.1",
+        "filter_name": "H1 expected-contact xBA available",
+        "required": true,
+        "metric_key": "expected_batting_average",
+        "operator": "present",
+        "threshold_ref": null,
+        "allowed_values": null,
+        "custom_rule_id": null,
+        "description": "Hits H1 requires season xBA from Savant Expected Statistics."
+      },
+      {
+        "filter_id": "H1-pa-present",
+        "filter_version": "filter-thresholds-v0.1",
+        "filter_name": "H1 expected-contact PA available",
+        "required": true,
+        "metric_key": "plate_appearances",
+        "operator": "present",
+        "threshold_ref": null,
+        "allowed_values": null,
+        "custom_rule_id": null,
+        "description": "Hits H1 requires season PA from Savant Expected Statistics."
+      }
+    ],
+    "thresholds": {}
+  }
+}
+```
+<!-- HITTERDNA_FILTER_POLICY_END -->
+
 ## 2. Status taxonomy
 
 | Label | Meaning | Daily-screen action |

@@ -1,5 +1,6 @@
 import ast
 import json
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,7 @@ FIXTURES = Path(__file__).parent / "fixtures" / "savant_expected_stats"
 ROOT = Path(__file__).parents[1]
 SEASON = 2030
 RETRIEVED_AT = "2030-01-01T00:00:00Z"
+CAPTURED_EXPECTED_STATISTICS_SHA256 = "b99c978b8938767322ce03d101771e9c182f8e96a0f1fad6a9ffe5355adceb92"
 
 
 class FakeResponse:
@@ -44,6 +46,10 @@ def fixture(name: str) -> str:
     return (FIXTURES / name).read_text(encoding="utf-8")
 
 
+def fixture_bytes(name: str) -> bytes:
+    return (FIXTURES / name).read_bytes()
+
+
 def test_valid_csv_parses_multiple_hitters_and_unicode_name() -> None:
     result = parse_expected_stats_payload(SEASON, fixture("valid.csv"), expected_stats_source_url(SEASON), RETRIEVED_AT)
 
@@ -52,6 +58,23 @@ def test_valid_csv_parses_multiple_hitters_and_unicode_name() -> None:
     assert result.rows[0].player_name == "Synthetic Álvarez"
     assert result.rows[0].xba == 0.27
     assert result.rows[1].xwoba == 0.32
+
+
+def test_exact_captured_authorized_csv_parses_to_canonical_mlbam_rows() -> None:
+    payload = fixture_bytes("captured_expected_statistics_2026.csv")
+    assert hashlib.sha256(payload).hexdigest() == CAPTURED_EXPECTED_STATISTICS_SHA256
+    result = parse_expected_stats_payload(
+        2026,
+        payload,
+        expected_stats_source_url(2026),
+        RETRIEVED_AT,
+    )
+
+    assert result.fetch_status == "fetched"
+    assert [row.player_mlbam_id for row in result.rows] == [691718, 608324]
+    assert [row.season for row in result.rows] == [2026, 2026]
+    assert result.rows[0].xba == 0.259
+    assert result.rows[1].xwoba == 0.318
 
 
 def test_blank_numeric_fields_normalize_to_none() -> None:

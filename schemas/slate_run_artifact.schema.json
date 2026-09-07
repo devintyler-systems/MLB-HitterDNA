@@ -17,9 +17,22 @@
         "game_date": {"type": "string", "format": "date"},
         "generated_at_utc": {"type": "string", "format": "date-time"},
         "status": {"enum": ["PASS", "FAIL", "UNVERIFIED", "STALE", "RETRYABLE", "TERMINAL"]},
-        "provenance": {"type": "object", "minProperties": 1}, "data": {"type": "object"}
+        "provenance": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/source_provenance"}}, "data": {"type": "object"}
       },
       "additionalProperties": false
+    },
+    "source_provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "endpoint_or_url", "submitted_parameters", "retrieved_at_utc", "raw_response_hash", "row_count_when_relevant", "canonical_keys", "source_freshness_status", "source_failure_status"],
+      "properties": {
+        "source": {"type": "string", "minLength": 1}, "endpoint_or_url": {"type": "string", "minLength": 1}, "submitted_parameters": {"type": "object"},
+        "retrieved_at_utc": {"type": "string", "format": "date-time"}, "raw_response_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "row_count_when_relevant": {"type": ["null", "integer"], "minimum": 0}, "canonical_keys": {"type": "object"},
+        "source_freshness_status": {"enum": ["PASS", "STALE", "UNVERIFIED"]}, "source_failure_status": {"enum": ["PASS", "FAIL", "RETRYABLE", "TERMINAL", "UNVERIFIED"]},
+        "raw_response_hash_by_game_pk": {"type": "object", "patternProperties": {"^[1-9][0-9]*$": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, "additionalProperties": false},
+        "raw_snapshot_by_game_pk": {"type": "object", "patternProperties": {"^[1-9][0-9]*$": {"type": "object", "additionalProperties": false, "required": ["endpoint_or_url", "retrieved_at_utc", "snapshot_path", "raw_response_hash"], "properties": {"endpoint_or_url": {"type": "string", "minLength": 1}, "retrieved_at_utc": {"type": "string", "format": "date-time"}, "snapshot_path": {"type": "string", "minLength": 1}, "raw_response_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}, "additionalProperties": false},
+        "aggregation_manifest_reference": {"type": "string", "minLength": 1}
+      }
     },
     "run_manifest": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "run_manifest"}, "data": {"$ref": "#/$defs/run_manifest_data"}}}]},
     "slate_context": {"allOf": [{"$ref": "#/$defs/envelope"}, {"properties": {"artifact_type": {"const": "slate_context"}, "data": {"$ref": "#/$defs/games_data"}}}]},
@@ -37,7 +50,11 @@
     },
     "games_data": {"type": "object", "required": ["games"], "properties": {"games": {"type": "array"}}, "additionalProperties": false},
     "rows_data": {"type": "object", "required": ["rows"], "properties": {"rows": {"type": "array"}}, "additionalProperties": false},
-    "candidates_data": {"type": "object", "required": ["candidates"], "properties": {"candidates": {"type": "array"}}, "additionalProperties": false},
+    "candidates_data": {"type": "object", "required": ["policy_provenance", "candidates"], "properties": {"policy_provenance": {"$ref": "#/$defs/filter_policy_provenance"}, "candidates": {"type": "array"}}, "additionalProperties": false},
+    "filter_policy_provenance": {"type": "object", "oneOf": [
+      {"required": ["load_status", "source_reference", "content_sha256", "loaded_at_utc", "policy_version"], "properties": {"load_status": {"const": "loaded"}, "source_reference": {"type": "string", "minLength": 1}, "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "loaded_at_utc": {"type": "string", "format": "date-time"}, "policy_version": {"type": "string", "minLength": 1}}, "additionalProperties": false},
+      {"required": ["load_status", "reason"], "properties": {"load_status": {"const": "unverified"}, "reason": {"type": "string", "minLength": 1}}, "additionalProperties": false}
+    ]},
     "records_data": {"type": "object", "required": ["records"], "properties": {"records": {"type": "array"}}, "additionalProperties": false},
     "validation_report_data": {
       "type": "object", "required": ["status", "registry_status", "source_contracts"],

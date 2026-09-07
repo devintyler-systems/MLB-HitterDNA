@@ -12,7 +12,7 @@ from hitterdna.statsapi import GameContext
 
 MetricValue = float | int | str | None
 ThresholdValue = float | int | str
-FilterOperator = Literal["gte", "gt", "lte", "lt", "eq", "in", "custom"]
+FilterOperator = Literal["gte", "gt", "lte", "lt", "eq", "in", "custom", "present"]
 FilterStatus = Literal["PASS", "FAIL", "UNVERIFIED"]
 StabilizationStatus = Literal["pass", "fail", "unverified", "not_applicable"]
 CandidateDisposition = Literal["advance", "drop"]
@@ -52,6 +52,7 @@ class ThresholdRegistry:
     source_url: str
     retrieved_at_utc: str
     version: str
+    content_sha256: str = ""
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "values", MappingProxyType(dict(self.values)))
@@ -93,6 +94,10 @@ class FilterResult:
     threshold_value: ThresholdValue | None
     threshold_source_url: str | None
     threshold_retrieved_at_utc: str | None
+    policy_source_reference: str | None
+    policy_loaded_at_utc: str | None
+    policy_version: str | None
+    policy_content_sha256: str | None
     status: FilterStatus
     reason: str
 
@@ -120,10 +125,12 @@ def evaluate_filter(
     threshold_value = thresholds.resolve(definition.threshold_ref)
     result = _result_from_inputs(candidate_context, definition, observation, thresholds, threshold_value)
 
-    definition_problem = _definition_problem(definition)
+    definition_problem = filter_definition_problem(definition)
     if definition_problem:
         return _replace_result(result, status="UNVERIFIED", reason=definition_problem)
-    observation_problem = _observation_problem(observation, definition.metric_key)
+    observation_problem = _observation_problem(
+        observation, definition.metric_key, allow_unstabilized=definition.operator == "present"
+    )
     if observation_problem:
         return _replace_result(result, status="UNVERIFIED", reason=observation_problem)
     assert observation is not None
@@ -132,6 +139,12 @@ def evaluate_filter(
         return _evaluate_custom_rule(result, observation, definition, thresholds, custom_rules)
     if definition.operator == "in":
         return _evaluate_allowed_values(result, observation, definition)
+    if definition.operator == "present":
+        return _replace_result(
+            result,
+            status="PASS" if observation.value is not None else "UNVERIFIED",
+            reason="metric is present" if observation.value is not None else "metric value is missing",
+        )
     threshold_problem = _threshold_problem(thresholds)
     if threshold_problem:
         return _replace_result(result, status="UNVERIFIED", reason=threshold_problem)
@@ -171,6 +184,56 @@ def build_candidate_filter_table(
         for definition in definitions
     )
     return _table_from_results(candidate_context, results)
+
+
+def build_policy_unverified_filter_table(
+    analysis_date: str,
+    game_context: GameContext,
+    lineup_player: LineupPlayer,
+    opponent_abbreviation: str,
+    reason: str,
+) -> CandidateFilterTable:
+    """Emit a fail-closed, machine-readable result when policy loading fails."""
+
+    candidate_context = CandidateContext(
+        analysis_date=analysis_date,
+        game_context=game_context,
+        lineup_player=lineup_player,
+        opponent_abbreviation=opponent_abbreviation,
+    )
+    player = candidate_context.lineup_player
+    result = FilterResult(
+        analysis_date=analysis_date,
+        game_pk=game_context.game_pk,
+        player_mlbam_id=player.player_mlbam_id,
+        player_name=player.player_name,
+        team_abbreviation=player.team_abbreviation,
+        opponent_abbreviation=opponent_abbreviation,
+        batting_order=player.batting_order,
+        pregame_eligibility=game_context.pregame_eligibility,
+        filter_id="filter-policy",
+        filter_version="",
+        filter_name="Filter policy integrity",
+        required=True,
+        metric_key="filter_policy",
+        actual_value=None,
+        sample_type="",
+        sample_n=None,
+        metric_source_url=None,
+        metric_retrieved_at_utc=None,
+        stabilization_status="not_applicable",
+        threshold_ref=None,
+        threshold_value=None,
+        threshold_source_url=None,
+        threshold_retrieved_at_utc=None,
+        policy_source_reference=None,
+        policy_loaded_at_utc=None,
+        policy_version=None,
+        policy_content_sha256=None,
+        status="UNVERIFIED",
+        reason=reason,
+    )
+    return _table_from_results(candidate_context, (result,))
 
 
 def serialize_filter_table(table: CandidateFilterTable) -> dict[str, Any]:
@@ -228,6 +291,10 @@ def _result_from_inputs(
         threshold_value=threshold_value,
         threshold_source_url=thresholds.source_url if definition.threshold_ref else None,
         threshold_retrieved_at_utc=thresholds.retrieved_at_utc if definition.threshold_ref else None,
+        policy_source_reference=thresholds.source_url or None,
+        policy_loaded_at_utc=thresholds.retrieved_at_utc or None,
+        policy_version=thresholds.version or None,
+        policy_content_sha256=thresholds.content_sha256 or None,
         status="UNVERIFIED",
         reason="not evaluated",
     )
@@ -237,19 +304,21 @@ def _replace_result(result: FilterResult, *, status: FilterStatus, reason: str) 
     return replace(result, status=status, reason=reason)
 
 
-def _definition_problem(definition: FilterDefinition) -> str | None:
+def filter_definition_problem(definition: FilterDefinition) -> str | None:
     if definition.operator in {"gte", "gt", "lte", "lt", "eq"} and not definition.threshold_ref:
         return "numeric comparison requires threshold_ref"
     if definition.operator == "in" and not definition.allowed_values:
         return "in comparison requires allowed_values"
     if definition.operator == "custom" and not definition.custom_rule_id:
         return "custom comparison requires custom_rule_id"
-    if definition.operator not in {"gte", "gt", "lte", "lt", "eq", "in", "custom"}:
+    if definition.operator not in {"gte", "gt", "lte", "lt", "eq", "in", "custom", "present"}:
         return "unsupported operator"
     return None
 
 
-def _observation_problem(observation: MetricObservation | None, metric_key: str) -> str | None:
+def _observation_problem(
+    observation: MetricObservation | None, metric_key: str, *, allow_unstabilized: bool = False
+) -> str | None:
     if observation is None:
         return "missing metric observation"
     if observation.metric_key != metric_key:
@@ -264,10 +333,10 @@ def _observation_problem(observation: MetricObservation | None, metric_key: str)
         return "metric observation missing sample_n"
     if not _is_sample_size(observation.sample_n):
         return "metric observation has invalid sample_n"
-    if observation.stabilization_status in {"fail", "unverified"}:
-        return "metric observation is not stabilized"
     if observation.stabilization_status not in {"pass", "fail", "unverified", "not_applicable"}:
         return "metric observation has invalid stabilization_status"
+    if not allow_unstabilized and observation.stabilization_status in {"fail", "unverified"}:
+        return "metric observation is not stabilized"
     return None
 
 
@@ -386,6 +455,10 @@ def _intake_result(candidate_context: CandidateContext, reason: str) -> FilterRe
         threshold_value=None,
         threshold_source_url=None,
         threshold_retrieved_at_utc=None,
+        policy_source_reference=None,
+        policy_loaded_at_utc=None,
+        policy_version=None,
+        policy_content_sha256=None,
         status="FAIL" if reason != "no filter definitions supplied" else "UNVERIFIED",
         reason=reason,
     )
