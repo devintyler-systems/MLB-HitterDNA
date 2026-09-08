@@ -1,0 +1,39 @@
+{
+  "gameData": {"game": {"pk": 900001}},
+  "liveData": {
+    "boxscore": {
+      "teams": {
+        "away": {
+          "team": {"id": 11, "abbreviation": "AWY"},
+          "battingOrder": [101,102,103,104,105,106,107,108,109],
+          "players": {
+            "ID101": {"person": {"id": 101}},
+            "ID102": {"person": {"id": 102}},
+            "ID103": {"person": {"id": 103}},
+            "ID104": {"person": {"id": 104}},
+            "ID105": {"person": {"id": 105}},
+            "ID106": {"person": {"id": 106}},
+            "ID107": {"person": {"id": 107}},
+            "ID108": {"person": {"id": 108}},
+            "ID109": {"person": {"id": 109}}
+          }
+        },
+        "home": {
+          "team": {"id": 22, "abbreviation": "HME"},
+          "battingOrder": [201,202,203,204,205,206,207,208,209],
+          "players": {
+            "ID201": {"person": {"id": 201}},
+            "ID202": {"person": {"id": 202}},
+            "ID203": {"person": {"id": 203}},
+            "ID204": {"person": {"id": 204}},
+            "ID205": {"person": {"id": 205}},
+            "ID206": {"person": {"id": 206}},
+            "ID207": {"person": {"id": 207}},
+            "ID208": {"person": {"id": 208}},
+            "ID209": {"person": {"id": 209}}
+          }
+        }
+      }
+    }
+  }
+}

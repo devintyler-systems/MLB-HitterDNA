@@ -1,0 +1,20 @@
+{
+  "gamePk": 900001,
+  "teams": {
+    "away": {
+      "batters": [101,102,103,104,105,106,107,108,109],
+      "players": {
+        "ID101": {"person": {"id": 101}, "stats": {"batting": {"hits": 1}}},
+        "ID102": {"person": {"id": 102}, "stats": {"batting": {"hits": 0}}},
+        "ID103": {"person": {"id": 103}, "stats": {"batting": {"hits": 1}}},
+        "ID104": {"person": {"id": 104}, "stats": {"batting": {"hits": 0}}},
+        "ID105": {"person": {"id": 105}, "stats": {"batting": {"hits": 1}}},
+        "ID106": {"person": {"id": 106}, "stats": {"batting": {"hits": 0}}},
+        "ID107": {"person": {"id": 107}, "stats": {"batting": {"hits": 1}}},
+        "ID108": {"person": {"id": 108}, "stats": {"batting": {"hits": 0}}},
+        "ID109": {"person": {"id": 109}, "stats": {"batting": {"hits": 1}}}
+      }
+    },
+    "home": {"batters": [], "players": {}}
+  }
+}

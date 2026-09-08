@@ -1,0 +1,16 @@
+{
+  "dates": [{
+    "date": "2025-06-01",
+    "games": [{
+      "gamePk": 900001,
+      "officialDate": "2025-06-01",
+      "gameDate": "2025-06-01T23:00:00Z",
+      "status": {"detailedState": "Scheduled"},
+      "teams": {
+        "away": {"team": {"id": 11, "name": "Away", "abbreviation": "AWY"}},
+        "home": {"team": {"id": 22, "name": "Home", "abbreviation": "HME"}}
+      },
+      "venue": {"id": 100, "name": "Synthetic Park"}
+    }]
+  }]
+}
