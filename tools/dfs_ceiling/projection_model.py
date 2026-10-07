@@ -37,7 +37,8 @@ PARK = {  # park multipliers: hits(in play), HR, runs
     'Truist Park': dict(h=1.00, hr=1.03, r=1.01),
     'Petco Park': dict(h=.98, hr=.94, r=.96),  # hot (83F) but 9 mph in from LF
 }
-PARK[CFG['park']] = CFG['park_factors']  # slate config overrides (weather-adjusted)
+PARK[CFG['park']] = CFG['park_factors']  # slate config overrides; 'hr' may be a number or {'L': .., 'R': ..} (batter side)
+WEATHER_HR = float(CFG.get('weather_hr', 1.0))  # temperature/wind multiplier on HR odds for this game
 
 # ---------------- helpers ----------------
 def g(stat, k, d=0):
@@ -176,9 +177,18 @@ def hitter_profile(pid, pit, game_card, pen, park, slot_bat):
         B1, B2, B3 = base['B1'] * sc_, base['B2'] * sc_, base['B3'] * sc_
         return dict(K=K, BB=BB, HBP=HBP, B1=B1, B2=B2, B3=B3, HR=HR)
     pk_h = PARK[park]
-    vs_sp = build(pk, pbb, phr, pc, fitmult, kfit, pk_h['h'], pk_h['hr'])
+    # park HR factor by batter side, scaled by how much he pulls the ball in the air (league pulled-air share ~22%): a pull-side power bat
+    # gets the full park effect, a spray hitter much less. BetLogic card gives pull-air % by pitch type; no card => neutral weight 1.0.
+    hf = pk_h['hr'][side] if isinstance(pk_h['hr'], dict) else pk_h['hr']
+    pull_air = None
+    if bl and bl['grid']:
+        num = sum((x.get('pullair') or 0) * x['usage'] * max(x['pa'], 1) for x in bl['grid']); den = sum(x['usage'] * max(x['pa'], 1) for x in bl['grid'])
+        pull_air = num / den if den else None
+    pull_w = min(max(pull_air / 22.0, .5), 1.6) if pull_air else 1.0
+    park_hr_eff = (1 + pull_w * (hf - 1)) * WEATHER_HR
+    vs_sp = build(pk, pbb, phr, pc, fitmult, kfit, pk_h['h'], park_hr_eff)
     pen_c = (pen['ops'] / LG_OPS_RP) ** .9
-    vs_pen = build(pen['K'], pen['BB'], LG['HR'] * pen['HR9'] / 1.06 / 1.0, pen_c, 1.0, 1.0, pk_h['h'], pk_h['hr'])
+    vs_pen = build(pen['K'], pen['BB'], LG['HR'] * pen['HR9'] / 1.06 / 1.0, pen_c, 1.0, 1.0, pk_h['h'], park_hr_eff)
     # third-time-through penalty is applied in PA allocation (see below)
     # SB
     seasst = first(r, 'season')
@@ -192,7 +202,7 @@ def hitter_profile(pid, pit, game_card, pen, park, slot_bat):
                 sb_per_ob=sb_per_ob * sb_mult, sprint=ss, sb=sb, cs=cs, form=form, fit=fitmult, kfit=kfit, grid=grid_note,
                 season_ops=seasst.get('ops'), season_pa=g(seasst, 'plateAppearances'),
                 hand_ops=spl.get('vs Left' if th == 'L' else 'vs Right', {}).get('ops'), hand_pa=hpa,
-                xwoba=xwb, brl=float(be[pid]['brl_percent']) if pid in be else None, hh=float(be[pid]['ev95percent']) if pid in be else None)
+                pull_air=pull_air, park_hr_eff=park_hr_eff, xwoba=xwb, brl=float(be[pid]['brl_percent']) if pid in be else None, hh=float(be[pid]['ev95percent']) if pid in be else None)
 
 # ---------------- lineup/game assembly ----------------
 BASE_PA = [4.65, 4.55, 4.45, 4.35, 4.25, 4.15, 4.05, 3.95, 3.85]

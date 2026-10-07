@@ -9,6 +9,8 @@ python fetch_inputs.py slates/<slate>.json <data_dir>      # statsapi + Savant +
 python build_events.py slates/<slate>.json <data_dir>      # per-PA event odds per hitter vs starter and vs pen
 python simulate.py <data_dir> 40000                        # full-game Monte Carlo -> DK points per player per game
 python optimize.py <data_dir> DKSalaries.csv --portfolio 4 # ceiling optimizer (+ multi-entry portfolio)
+python build_pen.py slates/<slate>.json                    # reliever-usage weights from the series' rest/workload (writes into the slate config)
+python slate_report.py slates/<slate>.json <data_dir>      # per-hitter / per-starter projections, ceiling odds, why-lines -> report.md, hitters.csv, pitchers.csv
 python score_actuals.py <game_pk>                          # actual DK points after the game (backtesting)
 python calibrate_field.py <data_dir> <standings.csv>       # score the REAL field in the sims, compare to reality
 python field_study.py <standings.csv> <game_pk>            # who finishes top 1%: captain type, stacks, ownership
@@ -62,3 +64,9 @@ Consistent in both contests: chalk SP anywhere in the lineup (1.2x, 1.6x); hitte
 Chalk SP as captain pooled 1.8x (so "fade the pitcher captain" is NOT supported). Combined leverage rule (chalk SP in UTIL + hitter CPT <10% + 4-stack) pooled 1.9x, CIs overlap the single rules.
 Optimizer modes: `--mode ceiling` (unconstrained P(beat field)), `leverage`, `leverage5`; `compare_modes.py` runs them side by side. On 10/6 the three modes' top-3 lineups would have
 finished at average real ranks of ~1150 (ceiling), ~1280 (leverage), ~620 (leverage5) of 2,366: one slate, mostly luck, logged for data not as a conclusion.
+
+## 2026-10-07 additions
+- **Form now spans regular season + postseason**: statsapi will not union game types in `byDateRange`, so `fetch_inputs.py` pulls R/F/D/L/W separately and merges (before this, a hitter's "last 14 days" ignored this week's playoff games).
+- **Park HR factors by batter side and pull tendency**: `park_factors.hr` may be `{"L": x, "R": y}`; each hitter's effect is scaled by his pulled-air share (BetLogic card, league ~22%), so a pull-side lefty gets the full Yankee Stadium porch effect and a spray hitter little. `weather_hr` is a per-game temperature/wind multiplier (~+0.25%/F vs 72F; ~0.9%/mph along the axis).
+- **Postseason scale**: 19 playoff games (342 hitter-games, through 10/6): raw sim ratio 0.885 pooled; wild card 0.993, division series 0.788. `DFS_POSTSEASON_SCALE` 0.90 fits the pooled sample, 0.80 the division series alone. Tonight's headline uses 0.88 with 1.0 and 0.80 as sensitivity (`sims_ps*.npz`). Not fitted to enough games to trust beyond +/-0.05.
+- `simulate.py` now also saves per-hitter components (H, HR, R, RBI, BB, K, SB, PA) and per-starter lines (outs, K, ER, H, BB, relievers used).

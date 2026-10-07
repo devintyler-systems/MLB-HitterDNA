@@ -105,7 +105,7 @@ def sim_game():
                             n_sp=0, n_pa=0, out=False))
         P[t] = lst
     pts = [0.0] * NC; saved = {}
-    stat = {t: [dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0) for _ in range(9)] for t in teams}
+    stat = {t: [dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0, k=0, pa=0) for _ in range(9)] for t in teams}
     # pitching state per fielding team
     pit = {}
     for t in teams:  # t = fielding team
@@ -151,8 +151,8 @@ def sim_game():
                 i = batter[bat]; hp = P[bat][i]
                 if SUBS and not hp['out'] and hp['n_pa'] >= 2 and rnd.random() < SUBQ[hp['slot'] - 1] * SUBS:
                     hp['out'] = True; saved[(bat, i)] = stat[bat][i]
-                    stat[bat][i] = dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0)   # bench hitter's production: counts for the team, not for the DFS starter
-                hp['n_pa'] += 1; st = stat[bat][i]
+                    stat[bat][i] = dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0, k=0, pa=0)   # bench hitter's production: counts for the team, not for the DFS starter
+                hp['n_pa'] += 1; st = stat[bat][i]; st['pa'] += 1
                 # stolen base attempt before the PA
                 if bases[0] and not bases[1] and outs < 2:
                     rp = P[bat][bases[0][0]]
@@ -175,7 +175,7 @@ def sim_game():
                 while k < 7 and u >= c[k]: k += 1
                 rbi = 0
                 if k == 0:                                   # K
-                    outs += 1; cur['outs'] += 1; cur['K'] += 1
+                    st['k'] += 1; outs += 1; cur['outs'] += 1; cur['K'] += 1
                 elif k in (1, 2):                            # BB / HBP: forced advances
                     if k == 1: st['bb'] += 1; cur['BB'] += 1
                     else: st['hbp'] += 1; cur['HBP'] += 1
@@ -257,14 +257,19 @@ def sim_game():
     allst = [x for t in teams for x in stat[t]] + list(saved.values())      # starters + replaced starters' saved lines + bench
     comp = [sum(x['b1'] + x['b2'] + x['b3'] + x['hr'] for x in allst), sum(x['hr'] for x in allst), sum(x['bb'] + x['hbp'] for x in allst),
             sum(x['sb'] for x in allst), sum(x['r'] for x in allst), sum(x['rbi'] for x in allst)]
-    return pts, score[away] + score[home], score, comp
+    hc = [[(lambda s_: [s_['b1'] + s_['b2'] + s_['b3'] + s_['hr'], s_['hr'], s_['r'], s_['rbi'], s_['bb'] + s_['hbp'], s_['k'], s_['sb'], s_['pa']])(saved.get((t, j), stat[t][j])) for j in range(9)] for t in teams]
+    sc2 = []
+    for t in teams:
+        p0 = pit[t]['all'][0]; won = 0
+        sc2.append([p0['outs'], p0['K'], p0['ER'], p0['H'], p0['BB'] + p0['HBP'], len(pit[t]['all']) - 1])
+    return pts, score[away] + score[home], score, comp, hc, sc2
 
 M = np.zeros((NS, NC), dtype=np.float32); tot = np.zeros(NS, dtype=np.float32)
-sc_mat = np.zeros((NS, 2), dtype=np.float32); comp_mat = np.zeros((NS, 6), dtype=np.float32)  # game totals: H, HR, BB+HBP, SB, R, RBI
+sc_mat = np.zeros((NS, 2), dtype=np.float32); comp_mat = np.zeros((NS, 6), dtype=np.float32); HC = np.zeros((NS, 2, 9, 8), dtype=np.int8); SC = np.zeros((NS, 2, 6), dtype=np.int16)  # HC: per hitter [H,HR,R,RBI,BB+HBP,K,SB,PA]; SC: per starter [outs,K,ER,H,BB+HBP,relievers used]
 for s in range(NS):
-    p, t, sc, cp_ = sim_game(); M[s] = p; tot[s] = t; sc_mat[s] = [sc[teams[0]], sc[teams[1]]]; comp_mat[s] = cp_
+    p, t, sc, cp_, hc_, sc2_ = sim_game(); M[s] = p; tot[s] = t; sc_mat[s] = [sc[teams[0]], sc[teams[1]]]; comp_mat[s] = cp_; HC[s] = np.array(hc_, dtype=np.int8); SC[s] = np.array(sc2_, dtype=np.int16)
     if (s + 1) % 5000 == 0: print(f"  {s + 1}/{NS} sims", flush=True)
-np.savez_compressed(f"{D}/sims.npz", M=M, names=np.array(cols), teams=np.array(ctm), kinds=np.array(kinds), total_runs=tot, team_order=np.array(teams), team_runs=sc_mat, comp=comp_mat)
+np.savez_compressed(f"{D}/sims.npz", M=M, names=np.array(cols), teams=np.array(ctm), kinds=np.array(kinds), total_runs=tot, team_order=np.array(teams), team_runs=sc_mat, comp=comp_mat, hc=HC, sc=SC)
 print(f"simulated {NS} games; mean total runs {tot.mean():.2f}  team runs {dict(zip(teams, sc_mat.mean(0).round(2)))}")
 for j in np.argsort(-M.mean(0))[:14]:
     col = M[:, j]

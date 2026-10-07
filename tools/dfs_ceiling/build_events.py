@@ -38,7 +38,8 @@ for side, opp in (('away', 'home'), ('home', 'away')):
         side=side, opp=o['abbr'], opp_starter=m.PIT[o['starter_id']]['name'], opp_starter_id=o['starter_id'],
         opp_bf_mean_sd=o['starter_bf_mean_sd'], proj_runs=tr,
         hitters=[dict(id=p['id'], name=p['name'], slot=p['slot'], pos=p['pos'], vs_sp=p['vs_sp'], vs_pen=p['vs_pen'],
-                      sb_per_ob=p['sb_per_ob'], sprint=p['sprint'],
+                      sb_per_ob=p['sb_per_ob'], sprint=p['sprint'], pull_air=p.get('pull_air'), park_hr_eff=p.get('park_hr_eff'), fit=p.get('fit'), kfit=p.get('kfit'),
+                      form=p.get('form'), bvp=BVP.get(p['id']), grid=p.get('grid'), bats=p.get('bats'), xwoba=p.get('xwoba'), brl=p.get('brl'), hh=p.get('hh'), hand_ops=p.get('hand_ops'), hand_pa=p.get('hand_pa'), season_ops=p.get('season_ops'), sb=p.get('sb'), cs=p.get('cs'),
                       proj=dict(H=p['H'], R=p['R'], RBI=p['RBI'], K=p['K'], BB=p['BB'], SB=p['SB'], HR=p['HR'], HRR=p['HRR'], PA=p['pa'])) for p in profs])
 json.dump(out, open(f"{D}/events.json", 'w'), indent=1)
 print('events.json:', {k: len(v['hitters']) for k, v in out['teams'].items()})

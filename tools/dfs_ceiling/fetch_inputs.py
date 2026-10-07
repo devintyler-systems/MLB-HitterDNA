@@ -69,11 +69,26 @@ for p in pit_ids:  # BetLogic card: raw per-pitch-type arsenal + opposing batter
 
 S = f"https://statsapi.mlb.com/api/v1/people/%d/stats?stats=%s&group=%s&season={season}"
 w_start, w_end = (d0 - timedelta(days=14)).isoformat(), (d0 - timedelta(days=1)).isoformat()
+def merge_form(blobs):
+    """Sum counting stats from several byDateRange responses (one per game type) into one response-shaped dict."""
+    tot = {}
+    for b in blobs:
+        sp = (b.get('stats') or [{}])[0].get('splits') or []
+        if not sp: continue
+        for k, v in sp[0]['stat'].items():
+            try: tot[k] = tot.get(k, 0) + float(v) if k in ('plateAppearances', 'atBats', 'hits', 'doubles', 'triples', 'homeRuns', 'baseOnBalls', 'hitByPitch', 'strikeOuts', 'stolenBases', 'caughtStealing', 'rbi', 'runs', 'sacFlies', 'totalBases', 'gamesPlayed') else tot.get(k, v)
+            except Exception: tot.setdefault(k, v)
+    if not tot: return {'stats': [{'splits': []}]}
+    ab, h, bb, hbp, sf, tb = (tot.get(k, 0) for k in ('atBats', 'hits', 'baseOnBalls', 'hitByPitch', 'sacFlies', 'totalBases'))
+    obp = (h + bb + hbp) / max(ab + bb + hbp + sf, 1); slg = tb / max(ab, 1)
+    tot.update(avg=f"{h / max(ab, 1):.3f}", obp=f"{obp:.3f}", slg=f"{slg:.3f}", ops=f"{obp + slg:.3f}")
+    return {'stats': [{'splits': [{'stat': tot}]}]}
 def hf(i):
+    form = [get(f"https://statsapi.mlb.com/api/v1/people/{i}/stats?stats=byDateRange&group=hitting&startDate={w_start}&endDate={w_end}&gameType={gt}") for gt in ('R', 'F', 'D', 'L', 'W')]
     return str(i), dict(
         bio=get(f"https://statsapi.mlb.com/api/v1/people/{i}")['people'][0],
         season=get(S % (i, 'season', 'hitting') + "&gameType=R"),
-        d14=get(f"https://statsapi.mlb.com/api/v1/people/{i}/stats?stats=byDateRange&group=hitting&startDate={w_start}&endDate={w_end}&gameType=R"),
+        d14=merge_form(form),
         spl=get(S % (i, 'statSplits', 'hitting') + "&sitCodes=vl,vr&gameType=R"),
         log=get(S % (i, 'gameLog', 'hitting') + "&gameType=R"))
 def pf(i):

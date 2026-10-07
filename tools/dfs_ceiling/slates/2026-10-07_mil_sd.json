@@ -1,0 +1,101 @@
+{
+ "date": "2026-10-07",
+ "game_pk": 849827,
+ "park": "Petco Park",
+ "park_factors": {
+  "h": 0.98,
+  "hr": {
+   "L": 0.94,
+   "R": 0.95
+  },
+  "r": 0.96
+ },
+ "weather_hr": 0.967,
+ "away": {
+  "team_id": 158,
+  "abbr": "MIL",
+  "starter_id": 688107,
+  "starter_bf_mean_sd": "auto",
+  "team_pa": 37.9
+ },
+ "home": {
+  "team_id": 135,
+  "abbr": "SD",
+  "starter_id": 621111,
+  "starter_bf_mean_sd": "auto",
+  "team_pa": 36.9
+ },
+ "extra_hitters": [],
+ "relievers": {
+  "MIL": {
+   "Trevor Megill": 0.6,
+   "Aaron Ashby": 0.55,
+   "Chad Patrick": 0.55,
+   "Abner Uribe": 0.303,
+   "Antonio Senzatela": 0.303,
+   "Shane Drohan": 0.3,
+   "JoJo Romero": 0.193,
+   "DL Hall": 0.14,
+   "Jacob Misiorowski": 0.05,
+   "Logan Henderson": 0.05,
+   "Kyle Harrison": 0.03
+  },
+  "SD": {
+   "Mason Miller": 0.6,
+   "Adrian Morejon": 0.55,
+   "David Morgan": 0.4,
+   "Bradgley Rodriguez": 0.303,
+   "Jason Adam": 0.303,
+   "Yuki Matsui": 0.303,
+   "Robbie Ray": 0.05
+  }
+ },
+ "bulk_relievers": [
+  "Dustin May",
+  "Jacob Misiorowski",
+  "Kyle Harrison",
+  "Logan Henderson",
+  "Shane Drohan",
+  "Michael King",
+  "Nick Pivetta",
+  "Robbie Ray"
+ ],
+ "bvp": {
+  "694192": [
+   3,
+   1
+  ],
+  "592885": [
+   12,
+   3
+  ],
+  "661388": [
+   4,
+   0
+  ],
+  "668930": [
+   4,
+   1
+  ],
+  "641343": [
+   5,
+   1
+  ],
+  "806198": [
+   0,
+   0
+  ],
+  "686217": [
+   2,
+   1
+  ],
+  "669003": [
+   3,
+   1
+  ],
+  "687401": [
+   2,
+   0
+  ]
+ }
+}

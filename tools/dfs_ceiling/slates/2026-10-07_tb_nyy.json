@@ -1,0 +1,141 @@
+{
+ "date": "2026-10-07",
+ "game_pk": 849838,
+ "park": "Yankee Stadium",
+ "park_factors": {
+  "h": 1.0,
+  "hr": {
+   "L": 1.18,
+   "R": 1.0
+  },
+  "r": 1.03
+ },
+ "weather_hr": 0.97,
+ "away": {
+  "team_id": 139,
+  "abbr": "TB",
+  "starter_id": 607259,
+  "starter_bf_mean_sd": "auto",
+  "team_pa": 37.9
+ },
+ "home": {
+  "team_id": 147,
+  "abbr": "NYY",
+  "starter_id": 608331,
+  "starter_bf_mean_sd": "auto",
+  "team_pa": 36.9
+ },
+ "extra_hitters": [],
+ "relievers": {
+  "TB": {
+   "Bryan Baker": 0.6,
+   "Cam Booser": 0.55,
+   "Cole Sulser": 0.55,
+   "Garrett Cleavinger": 0.55,
+   "Kevin Kelly": 0.55,
+   "Tyler Wells": 0.55,
+   "Ian Seymour": 0.468,
+   "Griffin Jax": 0.3,
+   "Steven Matz": 0.3,
+   "Drew Rasmussen": 0.05,
+   "Freddy Peralta": 0.043
+  },
+  "NYY": {
+   "David Bednar": 0.6,
+   "Brent Headrick": 0.55,
+   "John Schreiber": 0.55,
+   "Paul Blackburn": 0.55,
+   "Ryan Yarbrough": 0.4,
+   "Gerrit Cole": 0.05,
+   "Cam Schlittler": 0.043,
+   "Carlos Rod\u00f3n": 0.03,
+   "Ryan Weathers": 0.03,
+   "Will Warren": 0.03
+  }
+ },
+ "bulk_relievers": [
+  "Drew Rasmussen",
+  "Freddy Peralta",
+  "Griffin Jax",
+  "Steven Matz",
+  "Cam Schlittler",
+  "Carlos Rod\u00f3n",
+  "Gerrit Cole",
+  "Ryan Weathers",
+  "Will Warren"
+ ],
+ "bvp": {
+  "650490": [
+   20,
+   4
+  ],
+  "666018": [
+   11,
+   1
+  ],
+  "691406": [
+   15,
+   2
+  ],
+  "683748": [
+   0,
+   0
+  ],
+  "668723": [
+   6,
+   1
+  ],
+  "689414": [
+   3,
+   0
+  ],
+  "676356": [
+   9,
+   2
+  ],
+  "680700": [
+   0,
+   0
+  ],
+  "670764": [
+   10,
+   4
+  ],
+  "663757": [
+   6,
+   4
+  ],
+  "700250": [
+   9,
+   4
+  ],
+  "671277": [
+   10,
+   2
+  ],
+  "641355": [
+   17,
+   5
+  ],
+  "806146": [
+   3,
+   1
+  ],
+  "669224": [
+   5,
+   2
+  ],
+  "683011": [
+   5,
+   0
+  ],
+  "682987": [
+   3,
+   1
+  ],
+  "676609": [
+   9,
+   3
+  ]
+ }
+}
