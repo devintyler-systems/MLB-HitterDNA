@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-06",
+  "game_pk": 849826,
+  "park": "Petco Park",
+  "park_factors": {"h": 0.99, "hr": 0.97, "r": 0.98},
+  "away": {"team_id": 158, "abbr": "MIL", "starter_id": 669160, "starter_bf_mean_sd": [14.0, 5.0], "team_pa": 37.9},
+  "home": {"team_id": 135, "abbr": "SD", "starter_id": 601713, "starter_bf_mean_sd": [19.5, 4.5], "team_pa": 36.9},
+  "extra_hitters": [],
+  "bvp": {
+    "694192": [3, 0], "641343": [4, 1], "661388": [13, 3], "668930": [6, 1], "592885": [18, 7], "686217": [5, 2], "687401": [4, 1],
+    "665487": [29, 7], "701538": [10, 0], "592518": [42, 10], "664034": [12, 4], "657757": [11, 1], "593428": [16, 3], "630105": [21, 5]
+  },
+  "relievers": {
+    "MIL": {"Kyle Harrison": 0.45, "Robert Gasser": 0.30, "Garrett Stallings": 0.30, "Chad Patrick": 0.20, "Brandon Sproat": 0.20,
+            "Shane Drohan": 0.30, "Abner Uribe": 0.55, "Trevor Megill": 0.55, "Aaron Ashby": 0.50, "DL Hall": 0.40, "JoJo Romero": 0.40,
+            "Antonio Senzatela": 0.30, "Jacob Misiorowski": 0.12, "Logan Henderson": 0.10, "Bryse Wilson": 0.20, "Colton Gordon": 0.15},
+    "SD":  {"Robbie Ray": 0.25, "Michael King": 0.06, "Mason Miller": 0.55, "Yuki Matsui": 0.55, "Adrian Morejon": 0.55,
+            "Bradgley Rodriguez": 0.55, "Jason Adam": 0.45, "Jhony Brito": 0.25, "Kyle Hart": 0.25, "David Morgan": 0.30,
+            "Wandy Peralta": 0.30, "Hunter Stratton": 0.15, "JP Sears": 0.15, "Randy Vasquez": 0.15, "Griffin Canning": 0.15}
+  },
+  "bulk_relievers": ["Kyle Harrison", "Robert Gasser", "Garrett Stallings", "Chad Patrick", "Brandon Sproat", "Robbie Ray", "Michael King", "Jacob Misiorowski", "Logan Henderson", "JP Sears", "Randy Vasquez", "Griffin Canning"]
+}
