@@ -1,0 +1,1753 @@
+{
+  "artifact_type": "slate_context",
+  "game_date": "2026-09-25",
+  "games": [
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "game freshness state excludes pregame lineup refresh",
+        "lineup_status": "not_fetched",
+        "probable_pitcher": {
+          "full_name": "Clay Holmes",
+          "mlbam_id": 605280,
+          "status": "probable",
+          "throws": null
+        },
+        "team_id": 112,
+        "team_name": "Chicago Cubs"
+      },
+      "exclusion_reason": "game freshness state excludes pregame lineup refresh",
+      "freshness_state": "exclude_terminal",
+      "game_date": "2026-09-25",
+      "game_pk": 824703,
+      "game_state": "Final",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "game freshness state excludes pregame lineup refresh",
+        "lineup_status": "not_fetched",
+        "probable_pitcher": {
+          "full_name": "Alec Gamboa",
+          "mlbam_id": 687941,
+          "status": "probable",
+          "throws": null
+        },
+        "team_id": 111,
+        "team_name": "Boston Red Sox"
+      },
+      "scheduled_start_utc": "2026-09-25T17:05:00Z",
+      "venue": {
+        "venue_id": 3,
+        "venue_name": "Fenway Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "game freshness state excludes pregame lineup refresh",
+        "lineup_status": "not_fetched",
+        "probable_pitcher": {
+          "full_name": "Trevor Rogers",
+          "mlbam_id": 669432,
+          "status": "probable",
+          "throws": null
+        },
+        "team_id": 110,
+        "team_name": "Baltimore Orioles"
+      },
+      "exclusion_reason": "game freshness state excludes pregame lineup refresh",
+      "freshness_state": "exclude_in_progress",
+      "game_date": "2026-09-25",
+      "game_pk": 823491,
+      "game_state": "In Progress",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "game freshness state excludes pregame lineup refresh",
+        "lineup_status": "not_fetched",
+        "probable_pitcher": {
+          "full_name": "Brendan Beck",
+          "mlbam_id": 694341,
+          "status": "probable",
+          "throws": null
+        },
+        "team_id": 147,
+        "team_name": "New York Yankees"
+      },
+      "scheduled_start_utc": "2026-09-25T20:05:00Z",
+      "venue": {
+        "venue_id": 3313,
+        "venue_name": "Yankee Stadium"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Brandon Young",
+          "mlbam_id": 687064,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 110,
+        "team_name": "Baltimore Orioles"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823489,
+      "game_state": "Scheduled",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": null,
+          "mlbam_id": null,
+          "status": "unresolved",
+          "throws": null
+        },
+        "team_id": 147,
+        "team_name": "New York Yankees"
+      },
+      "scheduled_start_utc": "2026-09-25T20:10:00Z",
+      "venue": {
+        "venue_id": 3313,
+        "venue_name": "Yankee Stadium"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Pete Crow-Armstrong",
+            "mlbam_id": 691718,
+            "position": "CF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Seiya Suzuki",
+            "mlbam_id": 673548,
+            "position": "RF"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Michael Busch",
+            "mlbam_id": 683737,
+            "position": "1B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Michael Conforto",
+            "mlbam_id": 624424,
+            "position": "DH"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Ian Happ",
+            "mlbam_id": 664023,
+            "position": "LF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Nico Hoerner",
+            "mlbam_id": 663538,
+            "position": "SS"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Pedro Ram\u00edrez",
+            "mlbam_id": 699393,
+            "position": "2B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Carson Kelly",
+            "mlbam_id": 608348,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Matt Shaw",
+            "mlbam_id": 807713,
+            "position": "3B"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "David Peterson",
+          "mlbam_id": 656849,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 112,
+        "team_name": "Chicago Cubs"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "urgent_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 824706,
+      "game_state": "Warmup",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Roman Anthony",
+            "mlbam_id": 701350,
+            "position": "RF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Jahmai Jones",
+            "mlbam_id": 663330,
+            "position": "LF"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Wilyer Abreu",
+            "mlbam_id": 677800,
+            "position": "DH"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Trevor Story",
+            "mlbam_id": 596115,
+            "position": "SS"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Nick Sogard",
+            "mlbam_id": 686765,
+            "position": "1B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Andruw Monasterio",
+            "mlbam_id": 655316,
+            "position": "3B"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Jarren Duran",
+            "mlbam_id": 680776,
+            "position": "CF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Isiah Kiner-Falefa",
+            "mlbam_id": 643396,
+            "position": "2B"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Connor Wong",
+            "mlbam_id": 657136,
+            "position": "C"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Brayan Bello",
+          "mlbam_id": 678394,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 111,
+        "team_name": "Boston Red Sox"
+      },
+      "scheduled_start_utc": "2026-09-25T21:35:00Z",
+      "venue": {
+        "venue_id": 3,
+        "venue_name": "Fenway Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Yandy D\u00edaz",
+            "mlbam_id": 650490,
+            "position": "DH"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Jonathan Aranda",
+            "mlbam_id": 666018,
+            "position": "1B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Junior Caminero",
+            "mlbam_id": 691406,
+            "position": "3B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Ryan Vilade",
+            "mlbam_id": 668723,
+            "position": "RF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Jonny DeLuca",
+            "mlbam_id": 676356,
+            "position": "CF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Chandler Simpson",
+            "mlbam_id": 802415,
+            "position": "LF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Ben Williamson",
+            "mlbam_id": 810938,
+            "position": "2B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Nick Fortes",
+            "mlbam_id": 663743,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Jorge Mateo",
+            "mlbam_id": 622761,
+            "position": "SS"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Freddy Peralta",
+          "mlbam_id": 642547,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 139,
+        "team_name": "Tampa Bay Rays"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823409,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Kyle Schwarber",
+            "mlbam_id": 656941,
+            "position": "DH"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Trea Turner",
+            "mlbam_id": 607208,
+            "position": "SS"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Bryce Harper",
+            "mlbam_id": 547180,
+            "position": "RF"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Alec Bohm",
+            "mlbam_id": 664761,
+            "position": "1B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Bryson Stott",
+            "mlbam_id": 681082,
+            "position": "2B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Brandon Marsh",
+            "mlbam_id": 669016,
+            "position": "LF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Justin Crawford",
+            "mlbam_id": 702222,
+            "position": "CF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "J.T. Realmuto",
+            "mlbam_id": 592663,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Edmundo Sosa",
+            "mlbam_id": 624641,
+            "position": "3B"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Cristopher S\u00e1nchez",
+          "mlbam_id": 650911,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 143,
+        "team_name": "Philadelphia Phillies"
+      },
+      "scheduled_start_utc": "2026-09-25T22:40:00Z",
+      "venue": {
+        "venue_id": 2681,
+        "venue_name": "Citizens Bank Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Konnor Griffin",
+            "mlbam_id": 804606,
+            "position": "SS"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Brandon Lowe",
+            "mlbam_id": 664040,
+            "position": "2B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Bryan Reynolds",
+            "mlbam_id": 668804,
+            "position": "LF"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Oneil Cruz",
+            "mlbam_id": 665833,
+            "position": "CF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Nick Gonzales",
+            "mlbam_id": 693304,
+            "position": "3B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Ryan O'Hearn",
+            "mlbam_id": 656811,
+            "position": "DH"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Rafael Flores Jr.",
+            "mlbam_id": 804668,
+            "position": "C"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Spencer Horwitz",
+            "mlbam_id": 687462,
+            "position": "1B"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Jake Mangum",
+            "mlbam_id": 663968,
+            "position": "RF"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Bubba Chandler",
+          "mlbam_id": 696149,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 134,
+        "team_name": "Pittsburgh Pirates"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 824220,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Max Clark",
+            "mlbam_id": 703601,
+            "position": "CF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Hao-Yu Lee",
+            "mlbam_id": 701678,
+            "position": "2B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Kevin McGonigle",
+            "mlbam_id": 805808,
+            "position": "3B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Eduardo Valencia",
+            "mlbam_id": 680664,
+            "position": "DH"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Riley Greene",
+            "mlbam_id": 682985,
+            "position": "LF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Dillon Dingler",
+            "mlbam_id": 693307,
+            "position": "C"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Brett Callahan",
+            "mlbam_id": 814430,
+            "position": "RF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Spencer Torkelson",
+            "mlbam_id": 679529,
+            "position": "1B"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "John Peck",
+            "mlbam_id": 807726,
+            "position": "SS"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Jackson Jobe",
+          "mlbam_id": 695549,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 116,
+        "team_name": "Detroit Tigers"
+      },
+      "scheduled_start_utc": "2026-09-25T22:40:00Z",
+      "venue": {
+        "venue_id": 2394,
+        "venue_name": "Comerica Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Francisco Lindor",
+            "mlbam_id": 596019,
+            "position": "SS"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Juan Soto",
+            "mlbam_id": 665742,
+            "position": "LF"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Bo Bichette",
+            "mlbam_id": 666182,
+            "position": "3B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Mark Vientos",
+            "mlbam_id": 668901,
+            "position": "DH"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Carson Benge",
+            "mlbam_id": 701807,
+            "position": "RF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Francisco Alvarez",
+            "mlbam_id": 682626,
+            "position": "C"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Marcus Semien",
+            "mlbam_id": 543760,
+            "position": "2B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "A.J. Ewing",
+            "mlbam_id": 805999,
+            "position": "CF"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Christopher Morel",
+            "mlbam_id": 666624,
+            "position": "1B"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": null,
+          "mlbam_id": null,
+          "status": "unresolved",
+          "throws": null
+        },
+        "team_id": 121,
+        "team_name": "New York Mets"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 822681,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "James Wood",
+            "mlbam_id": 695578,
+            "position": "DH"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Andr\u00e9s Chaparro",
+            "mlbam_id": 665953,
+            "position": "1B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Brady House",
+            "mlbam_id": 691781,
+            "position": "3B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Dylan Crews",
+            "mlbam_id": 686611,
+            "position": "RF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "CJ Abrams",
+            "mlbam_id": 682928,
+            "position": "SS"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Jacob Young",
+            "mlbam_id": 696285,
+            "position": "CF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Daylen Lile",
+            "mlbam_id": 695734,
+            "position": "LF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Keibert Ruiz",
+            "mlbam_id": 660688,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Jorbit Vivas",
+            "mlbam_id": 678391,
+            "position": "2B"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Andrew Alvarez",
+          "mlbam_id": 674841,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 120,
+        "team_name": "Washington Nationals"
+      },
+      "scheduled_start_utc": "2026-09-25T22:45:00Z",
+      "venue": {
+        "venue_id": 3309,
+        "venue_name": "Nationals Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Carlos Jorge",
+            "mlbam_id": 699115,
+            "position": "CF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Elly De La Cruz",
+            "mlbam_id": 682829,
+            "position": "DH"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Sal Stewart",
+            "mlbam_id": 701398,
+            "position": "1B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "JJ Bleday",
+            "mlbam_id": 668709,
+            "position": "LF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Eugenio Su\u00e1rez",
+            "mlbam_id": 553993,
+            "position": "3B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "H\u00e9ctor Rodr\u00edguez",
+            "mlbam_id": 699302,
+            "position": "RF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Juan Brito",
+            "mlbam_id": 682877,
+            "position": "2B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Jose Trevino",
+            "mlbam_id": 624431,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Oswaldo Cabrera",
+            "mlbam_id": 665828,
+            "position": "SS"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Nick Lodolo",
+          "mlbam_id": 666157,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 113,
+        "team_name": "Cincinnati Reds"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 822760,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Charles McAdoo",
+            "mlbam_id": 807727,
+            "position": "2B"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Alejandro Kirk",
+            "mlbam_id": 672386,
+            "position": "C"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Vladimir Guerrero Jr.",
+            "mlbam_id": 665489,
+            "position": "1B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "George Springer",
+            "mlbam_id": 543807,
+            "position": "DH"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Kazuma Okamoto",
+            "mlbam_id": 672960,
+            "position": "3B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Nathan Lukes",
+            "mlbam_id": 664770,
+            "position": "RF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Davis Schneider",
+            "mlbam_id": 676914,
+            "position": "LF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Ernie Clement",
+            "mlbam_id": 676391,
+            "position": "SS"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Myles Straw",
+            "mlbam_id": 664702,
+            "position": "CF"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Jos\u00e9 Soriano",
+          "mlbam_id": 667755,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 141,
+        "team_name": "Toronto Blue Jays"
+      },
+      "scheduled_start_utc": "2026-09-25T23:07:00Z",
+      "venue": {
+        "venue_id": 14,
+        "venue_name": "Rogers Centre"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Drake Baldwin",
+            "mlbam_id": 686948,
+            "position": "DH"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Ronald Acu\u00f1a Jr.",
+            "mlbam_id": 660670,
+            "position": "RF"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Matt Olson",
+            "mlbam_id": 621566,
+            "position": "1B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Michael Harris II",
+            "mlbam_id": 671739,
+            "position": "CF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Mauricio Dub\u00f3n",
+            "mlbam_id": 643289,
+            "position": "SS"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Ozzie Albies",
+            "mlbam_id": 645277,
+            "position": "2B"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Mike Yastrzemski",
+            "mlbam_id": 573262,
+            "position": "LF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Austin Riley",
+            "mlbam_id": 663586,
+            "position": "3B"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Sean Murphy",
+            "mlbam_id": 669221,
+            "position": "C"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Ray Kerr",
+          "mlbam_id": 678061,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 144,
+        "team_name": "Atlanta Braves"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823816,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Otto Lopez",
+            "mlbam_id": 672640,
+            "position": "SS"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Jakob Marsee",
+            "mlbam_id": 805300,
+            "position": "CF"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Heriberto Hern\u00e1ndez",
+            "mlbam_id": 681715,
+            "position": "LF"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Javier Sanoja",
+            "mlbam_id": 691594,
+            "position": "3B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Griffin Conine",
+            "mlbam_id": 665052,
+            "position": "RF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Agust\u00edn Ram\u00edrez",
+            "mlbam_id": 682663,
+            "position": "DH"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Deyvison De Los Santos",
+            "mlbam_id": 691277,
+            "position": "1B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Joe Mack",
+            "mlbam_id": 691788,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Jared Serna",
+            "mlbam_id": 691858,
+            "position": "2B"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Eury P\u00e9rez",
+          "mlbam_id": 691587,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 146,
+        "team_name": "Miami Marlins"
+      },
+      "scheduled_start_utc": "2026-09-25T23:10:00Z",
+      "venue": {
+        "venue_id": 4169,
+        "venue_name": "loanDepot park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "JJ Wetherholt",
+            "mlbam_id": 802139,
+            "position": "2B"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Iv\u00e1n Herrera",
+            "mlbam_id": 671056,
+            "position": "DH"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Jordan Walker",
+            "mlbam_id": 691023,
+            "position": "RF"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Leo Bernal",
+            "mlbam_id": 699024,
+            "position": "1B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Jos\u00e9 Ferm\u00edn",
+            "mlbam_id": 665877,
+            "position": "LF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Thomas Saggese",
+            "mlbam_id": 695336,
+            "position": "3B"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Masyn Winn",
+            "mlbam_id": 691026,
+            "position": "SS"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Pedro Pag\u00e9s",
+            "mlbam_id": 686780,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Victor Scott II",
+            "mlbam_id": 687363,
+            "position": "CF"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Michael McGreevy",
+          "mlbam_id": 700241,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 138,
+        "team_name": "St. Louis Cardinals"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823735,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Garrett Mitchell",
+            "mlbam_id": 669003,
+            "position": "CF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Brice Turang",
+            "mlbam_id": 668930,
+            "position": "2B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "William Contreras",
+            "mlbam_id": 661388,
+            "position": "C"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Jake Bauers",
+            "mlbam_id": 641343,
+            "position": "1B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Christian Yelich",
+            "mlbam_id": 592885,
+            "position": "DH"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Joey Ortiz",
+            "mlbam_id": 687401,
+            "position": "SS"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Luis Lara",
+            "mlbam_id": 800325,
+            "position": "RF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Sal Frelick",
+            "mlbam_id": 686217,
+            "position": "LF"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "David Hamilton",
+            "mlbam_id": 666152,
+            "position": "3B"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Robert Gasser",
+          "mlbam_id": 688107,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 158,
+        "team_name": "Milwaukee Brewers"
+      },
+      "scheduled_start_utc": "2026-09-25T23:40:00Z",
+      "venue": {
+        "venue_id": 32,
+        "venue_name": "American Family Field"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Steven Kwan",
+            "mlbam_id": 680757,
+            "position": "CF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Jos\u00e9 Ram\u00edrez",
+            "mlbam_id": 608070,
+            "position": "3B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Chase DeLauter",
+            "mlbam_id": 800050,
+            "position": "DH"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Jo Adell",
+            "mlbam_id": 666176,
+            "position": "RF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Angel Mart\u00ednez",
+            "mlbam_id": 682657,
+            "position": "LF"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "David Fry",
+            "mlbam_id": 681807,
+            "position": "1B"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Travis Bazzana",
+            "mlbam_id": 683953,
+            "position": "2B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Austin Hedges",
+            "mlbam_id": 595978,
+            "position": "C"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Brayan Rocchio",
+            "mlbam_id": 677587,
+            "position": "SS"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Gavin Williams",
+          "mlbam_id": 668909,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 114,
+        "team_name": "Cleveland Guardians"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 824058,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Carter Jensen",
+            "mlbam_id": 695600,
+            "position": "C"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Bobby Witt Jr.",
+            "mlbam_id": 677951,
+            "position": "SS"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Jac Caglianone",
+            "mlbam_id": 695506,
+            "position": "RF"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Maikel Garcia",
+            "mlbam_id": 672580,
+            "position": "3B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Vinnie Pasquantino",
+            "mlbam_id": 686469,
+            "position": "1B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Salvador Perez",
+            "mlbam_id": 521692,
+            "position": "DH"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Michael Massey",
+            "mlbam_id": 686681,
+            "position": "2B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "John Rave",
+            "mlbam_id": 670231,
+            "position": "LF"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Kyle Isbel",
+            "mlbam_id": 664728,
+            "position": "CF"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Noah Cameron",
+          "mlbam_id": 702070,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 118,
+        "team_name": "Kansas City Royals"
+      },
+      "scheduled_start_utc": "2026-09-25T23:40:00Z",
+      "venue": {
+        "venue_id": 7,
+        "venue_name": "Kauffman Stadium"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Jake McCarthy",
+            "mlbam_id": 664983,
+            "position": "CF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Adael Amador",
+            "mlbam_id": 691182,
+            "position": "2B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Hunter Goodman",
+            "mlbam_id": 696100,
+            "position": "C"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "TJ Rumfield",
+            "mlbam_id": 681198,
+            "position": "1B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Kyle Karros",
+            "mlbam_id": 691720,
+            "position": "3B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Mickey Moniak",
+            "mlbam_id": 666160,
+            "position": "LF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Troy Johnston",
+            "mlbam_id": 687859,
+            "position": "RF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Zac Veen",
+            "mlbam_id": 691728,
+            "position": "DH"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Ezequiel Tovar",
+            "mlbam_id": 678662,
+            "position": "SS"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Tomoyuki Sugano",
+          "mlbam_id": 608372,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 115,
+        "team_name": "Colorado Rockies"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 824544,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Sam Antonacci",
+            "mlbam_id": 803011,
+            "position": "2B"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Kyle Teel",
+            "mlbam_id": 691019,
+            "position": "C"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Miguel Vargas",
+            "mlbam_id": 678246,
+            "position": "3B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Munetaka Murakami",
+            "mlbam_id": 808959,
+            "position": "1B"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Andrew Benintendi",
+            "mlbam_id": 643217,
+            "position": "DH"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Tristan Peters",
+            "mlbam_id": 671976,
+            "position": "CF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Randal Grichuk",
+            "mlbam_id": 545341,
+            "position": "LF"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Colson Montgomery",
+            "mlbam_id": 695657,
+            "position": "SS"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Braden Montgomery",
+            "mlbam_id": 695731,
+            "position": "RF"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Sean Burke",
+          "mlbam_id": 680732,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 145,
+        "team_name": "Chicago White Sox"
+      },
+      "scheduled_start_utc": "2026-09-25T23:40:00Z",
+      "venue": {
+        "venue_id": 4,
+        "venue_name": "Rate Field"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Brandon Nimmo",
+            "mlbam_id": 607043,
+            "position": "RF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Josh Jung",
+            "mlbam_id": 673962,
+            "position": "DH"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Corey Seager",
+            "mlbam_id": 608369,
+            "position": "SS"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Wyatt Langford",
+            "mlbam_id": 694671,
+            "position": "LF"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Ezequiel Duran",
+            "mlbam_id": 677649,
+            "position": "3B"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Nicky Lopez",
+            "mlbam_id": 670032,
+            "position": "2B"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Jake Burger",
+            "mlbam_id": 669394,
+            "position": "1B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Evan Carter",
+            "mlbam_id": 694497,
+            "position": "CF"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Danny Jansen",
+            "mlbam_id": 643376,
+            "position": "C"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Jacob deGrom",
+          "mlbam_id": 594798,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 140,
+        "team_name": "Texas Rangers"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823652,
+      "game_state": "Pre-Game",
+      "home_team": {
+        "hitters": [
+          {
+            "batting_order": 1,
+            "full_name": "Luke Keaschall",
+            "mlbam_id": 807712,
+            "position": "RF"
+          },
+          {
+            "batting_order": 2,
+            "full_name": "Brooks Lee",
+            "mlbam_id": 686797,
+            "position": "3B"
+          },
+          {
+            "batting_order": 3,
+            "full_name": "Kody Clemens",
+            "mlbam_id": 665019,
+            "position": "2B"
+          },
+          {
+            "batting_order": 4,
+            "full_name": "Josh Bell",
+            "mlbam_id": 605137,
+            "position": "DH"
+          },
+          {
+            "batting_order": 5,
+            "full_name": "Ryan Jeffers",
+            "mlbam_id": 680777,
+            "position": "C"
+          },
+          {
+            "batting_order": 6,
+            "full_name": "Walker Jenkins",
+            "mlbam_id": 805805,
+            "position": "CF"
+          },
+          {
+            "batting_order": 7,
+            "full_name": "Royce Lewis",
+            "mlbam_id": 668904,
+            "position": "1B"
+          },
+          {
+            "batting_order": 8,
+            "full_name": "Emmanuel Rodriguez",
+            "mlbam_id": 691181,
+            "position": "LF"
+          },
+          {
+            "batting_order": 9,
+            "full_name": "Ryan Kreidler",
+            "mlbam_id": 668952,
+            "position": "SS"
+          }
+        ],
+        "lineup_reason": null,
+        "lineup_status": "confirmed",
+        "probable_pitcher": {
+          "full_name": "Joe Ryan",
+          "mlbam_id": 657746,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 142,
+        "team_name": "Minnesota Twins"
+      },
+      "scheduled_start_utc": "2026-09-26T00:10:00Z",
+      "venue": {
+        "venue_id": 3312,
+        "venue_name": "Target Field"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Brandon Pfaadt",
+          "mlbam_id": 694297,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 109,
+        "team_name": "Arizona Diamondbacks"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823248,
+      "game_state": "Scheduled",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": null,
+          "mlbam_id": null,
+          "status": "unresolved",
+          "throws": null
+        },
+        "team_id": 135,
+        "team_name": "San Diego Padres"
+      },
+      "scheduled_start_utc": "2026-09-26T01:40:00Z",
+      "venue": {
+        "venue_id": 2680,
+        "venue_name": "Petco Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Hunter Brown",
+          "mlbam_id": 686613,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 117,
+        "team_name": "Houston Astros"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 824947,
+      "game_state": "Scheduled",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Jacob Lopez",
+          "mlbam_id": 682052,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 133,
+        "team_name": "Athletics"
+      },
+      "scheduled_start_utc": "2026-09-26T01:40:00Z",
+      "venue": {
+        "venue_id": 2529,
+        "venue_name": "Sutter Health Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Reid Detmers",
+          "mlbam_id": 672282,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 108,
+        "team_name": "Los Angeles Angels"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823085,
+      "game_state": "Scheduled",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Bryce Miller",
+          "mlbam_id": 682243,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 136,
+        "team_name": "Seattle Mariners"
+      },
+      "scheduled_start_utc": "2026-09-26T02:10:00Z",
+      "venue": {
+        "venue_id": 680,
+        "venue_name": "T-Mobile Park"
+      }
+    },
+    {
+      "away_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Tarik Skubal",
+          "mlbam_id": 669373,
+          "status": "probable",
+          "throws": "L"
+        },
+        "team_id": 119,
+        "team_name": "Los Angeles Dodgers"
+      },
+      "exclusion_reason": null,
+      "freshness_state": "eligible_refresh",
+      "game_date": "2026-09-25",
+      "game_pk": 823167,
+      "game_state": "Scheduled",
+      "home_team": {
+        "hitters": [],
+        "lineup_reason": "lineup does not contain exactly nine unique players in batting-order slots 1 through 9",
+        "lineup_status": "unconfirmed",
+        "probable_pitcher": {
+          "full_name": "Yunior Marte",
+          "mlbam_id": 805074,
+          "status": "probable",
+          "throws": "R"
+        },
+        "team_id": 137,
+        "team_name": "San Francisco Giants"
+      },
+      "scheduled_start_utc": "2026-09-26T02:15:00Z",
+      "venue": {
+        "venue_id": 2395,
+        "venue_name": "Oracle Park"
+      }
+    }
+  ],
+  "retrieved_at_utc": "2026-09-25T21:24:22.644959Z"
+}
