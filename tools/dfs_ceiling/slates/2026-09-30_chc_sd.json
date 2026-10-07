@@ -1,0 +1,46 @@
+{
+ "date": "2026-09-30",
+ "game_pk": 849842,
+ "park": "Petco Park",
+ "park_factors": {
+  "h": 0.99,
+  "hr": 0.97,
+  "r": 0.98
+ },
+ "extra_hitters": [],
+ "bvp": {},
+ "relievers": {
+  "CHC": {
+   "Daniel Palencia": 0.4,
+   "David Peterson": 0.4,
+   "Ryan Zeferjahn": 0.4
+  },
+  "SD": {
+   "Bradgley Rodriguez": 0.4,
+   "Jason Adam": 0.4,
+   "Adrian Morejon": 0.4,
+   "Mason Miller": 0.4
+  }
+ },
+ "bulk_relievers": [],
+ "away": {
+  "team_id": 112,
+  "abbr": "CHC",
+  "starter_id": 592332,
+  "starter_bf_mean_sd": [
+   21.0,
+   4.5
+  ],
+  "team_pa": 37.9
+ },
+ "home": {
+  "team_id": 135,
+  "abbr": "SD",
+  "starter_id": 601713,
+  "starter_bf_mean_sd": [
+   21.0,
+   4.5
+  ],
+  "team_pa": 36.9
+ }
+}
