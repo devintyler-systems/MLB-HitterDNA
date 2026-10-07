@@ -1,7 +1,8 @@
 """Grid-search the two calibration knobs (DFS_OFFENSE_SCALE, DFS_SIG_SCALE) against a backtest_games.py run.
 usage: python fit_calibration.py <bt_dir> [--games 80] [--sims 1500] [--workers 6] [--off 0.9,0.95,1.0,1.05] [--sig 0.8,1.0,1.2,1.4]
 Re-simulates the saved games under each setting (events are reused) and scores hitter-level calibration:
-  loss = (log mean-ratio)^2 + mean over thresholds {>=10,>=17,>=24} of (log tail-ratio)^2 + (log zero-rate ratio)^2 + 0.5*chi2(PIT deciles)
+  loss = (log mean-ratio)^2 + mean over thresholds {>=10,>=17,>=24} of (log tail-ratio)^2 + (log zero-rate ratio)^2
+(PIT chi-square is printed but NOT in the loss: point totals are discrete with a big mass at 0, so PIT can never look flat.)
 Pick the setting with the lowest loss, but read the table: a flat valley means the data cannot choose, and
 fitting on a few hundred games risks fitting luck. Check the chosen setting on games it was not fitted on."""
 import sys, os, json, shutil, subprocess, argparse, itertools, tempfile, concurrent.futures as cf
@@ -30,7 +31,7 @@ def run(setting):
     Y = np.array(ys); x = Y[:, 0]
     mr = x.mean() / Y[:, 1].mean(); tails = [np.mean(x >= k) / Y[:, c].mean() for k, c in ((10, 2), (17, 3), (24, 4))]; zr = np.mean(x <= 0) / Y[:, 5].mean()
     dec = np.histogram(Y[:, 6], bins=10, range=(0, 1))[0]; chi = float(((dec - len(Y) / 10) ** 2 / (len(Y) / 10)).sum() / 9)
-    loss = np.log(mr) ** 2 + np.mean([np.log(max(t, 1e-3)) ** 2 for t in tails]) + np.log(zr) ** 2 + .5 * chi / 10
+    loss = np.log(mr) ** 2 + np.mean([np.log(max(t, 1e-3)) ** 2 for t in tails]) + np.log(zr) ** 2 
     return dict(off=off, sig=sig, n=len(Y), mean_ratio=mr, tail10=tails[0], tail17=tails[1], tail24=tails[2], zero=zr, chi=chi, loss=loss)
 grid = list(itertools.product([float(x) for x in a.off.split(',')], [float(x) for x in a.sig.split(',')]))
 res = []

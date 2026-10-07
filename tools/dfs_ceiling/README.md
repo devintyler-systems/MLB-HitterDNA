@@ -26,18 +26,39 @@ Needs `numpy` (`pip install -r requirements.txt`). `optimize.py` options: `--obj
 3. `optimize.py` scores a field of lineups inside the same simulated games, then searches for the lineup (and portfolio)
    with the highest chance of beating the field. Search runs on half the sims; reported numbers are on the held-out half.
 
-## Validation on 2026-10-06 MIL@SD Showdown ($10K, 2,366 entries) — one slate, anecdotal
-- Simulated tails vs the real game: sim expects 4.5 hitters >=10 DK pts and 1.6 >=17; actual 5 and 2. Sim mean total runs 7.6 vs 7 actual.
-- Real field scored inside the sims: sim field median 47.6 / p90 69.7 vs real 38.2 / 55.9 (chalk bats Salas, Tatis, Chourio, France all busted that night); sim's expected winning score 93 vs real 81.75 (real winner sits at the 26th percentile).
-- The real top-10 finishers rate 1.3-2.2x the average entry's simulated win probability (rank corr 0.26): the sim sees what wins, but luck dominates one game.
-- Tool picks scored 30-52 actual points. A single result neither validates nor invalidates the approach.
+## Calibration (the part to trust, and its limits)
+**Player-level backtest** (`backtest_games.py` + `calibration_report.py`): 377 final games, 9/1-10/5/2026, 6,785 hitter-games, 754 starter-games, simulated from
+pre-game-style inputs and compared with each player's actual DK points. With the shipped defaults:
 
-### Second, out-of-sample check: 2026-09-30 CHC@SD $8K Mini-Max (9,471 entries) — the sim ran HOT
-`python calibrate_field.py` scores the real field inside the sims. Here the sim's field median was 53.6 vs 27.0 real, and its median winning score 104 vs 65.5 real (real winner is a ~1% outcome in the sim). The game was low-scoring (5 runs vs a sim mean of 8.3) and both starters were pulled at 15 batters faced (config assumed 21), so part of the miss is one low game and a config guess, not the model. Pooled over both games, actual hitter points averaged 5.0 vs 6.7 simulated (36 hitter-games, ~1.8 SE below), while total runs across the six games with data (7, 5, 8, 9, 11, 10) average 8.3, in line with the sim's 7.6-8.3. No recalibration has been done: two games cannot separate bias from luck. Treat absolute win probabilities as overstated for the highest-variance lineups until more slates are logged with `calibrate_field.py`.
+| check | actual | sim |
+|---|---|---|
+| hitter DK points / game | 6.84 | 6.82 (ratio 1.003 +/- 0.013; 1.00 in slots 1-2, 3-5 and 6-9; second half alone 0.993) |
+| starting-pitcher DK points | 12.20 | 12.36 (ratio 0.987 +/- 0.032) |
+| hitter games at 0 pts / >=10 / >=17 / >=24 | 23.8 / 26.8 / 10.6 / 3.1 % | 24.4 / 27.3 / 10.5 / 3.1 % |
+| game total runs (mean / SD) | 9.02 / 4.35 | 8.96 / 4.32 |
+| hits, HR, BB+HBP, SB, R, RBI per game | 16.43, 2.32, 7.50, 1.35, 9.02, 8.60 | 16.29, 2.29, 7.42, 1.34, 8.96, 8.55 |
+| 80% interval coverage (hitters / pitchers) | | 85% / 80% |
+| `game_level_check.py`: z-score SD of game-mean hitter points | | 0.95 (single-team positions uniform; 20% outside 10-90% as expected) |
 
-## Known limitations (read before trusting a number)
-- **Reliever usage is a guess** (`relievers`/`bulk_relievers` in the slate config). The optimizer exploits guessed-cheap-ceiling relievers, so they are excluded from lineups by default. Reliever wins are not simulated.
-- **The field is a model.** Pass real/projected ownership (`--ownership`) when you have it; the built-in proxy (AvgPointsPerGame**p, captain propensity ~ salary**2.2) fit real ownership poorly (R^2 0.26 on this slate).
-- Win probabilities are small by nature (~0.3-0.4% for the best single lineup in a ~2.4K field, ~25x an average entry); a 4-lineup portfolio covers ~1.0-1.3%.
-- BvP and the arsenal-fit data are small-sample inputs; shock sizes (`SIG` in simulate.py) are judgment calls, not fitted.
-- BetLogic pitcher cards exist only for current probables, so historical re-runs need previously saved `raw/p_<id>.json`.
+How it got there (each step is a knob in `simulate.py`, all env-overridable): the raw model ran ~8% hot on hitter points, but that hid offsetting errors
+(hits +6%, HR +9%, BB +6%, RBI +8%, **steals -60%**). `fit_components.py` fits one knob per box-score component on all 377 games
+(`DFS_OFFENSE_SCALE`, `DFS_HR_SCALE`, `DFS_BB_SCALE`, `DFS_SB_SCALE`, `DFS_ADV_SCALE` runner advancement, `DFS_WILD_RATE` no-RBI runs); a late-replacement
+hazard (`DFS_SUB_SCALE`) fixes starters' share of team production (starters were ~5% too productive, worst at the bottom of the order).
+Fitting one half and testing the other overfit run totals (halves differ ~5% from sampling noise alone), so the shipped values use all games.
+
+**Known remaining misses**
+- **Division-series hitters scored ~24% below the sim** (4.76 vs 6.27 DK pts, n=144 hitter-games, 8 games, ~3 SE). Wild-card hitters matched (ratio 0.995, n=162). `DFS_POSTSEASON_SCALE` (default 1.0, try 0.9) exists but is NOT applied: too few playoff games to trust it.
+- **Look-ahead and neutral inputs in the backtest**: season/platoon stats are as-of-today (a game's own result is inside its inputs), BetLogic arsenal fit is unavailable historically, park factors neutral, relievers generic. So live accuracy can be somewhat worse than the table.
+- **Reliever usage is a guess** in live slates; relievers are excluded from lineups by default (`--allow-relievers`). Reliever wins are not simulated.
+- **The field is a model** unless you pass real ownership (`--ownership`) or a real standings export (`--field-lineups`); the proxy fit real ownership poorly (R^2 0.26).
+- Shock sizes (`SIG`) sit on a flat valley in the fit (0.8x-1.0x indistinguishable); 1.0 kept.
+
+**Field-level checks on real contests** (`calibrate_field.py`, one game each, so noisy): 10/6 MIL@SD $10K (2,366 entries): sim field median 46 vs 38 real, winning score
+92 vs 82 (real winner at the 28th percentile of the sim). 9/30 CHC@SD $8K (9,471 entries): sim median 52 vs 27, winning score 102 vs 65.5; that game's hitters were ~1.4 SD
+below the sim's expectation (CHC scored 1 run), consistent with the game-level check rather than a structural miss.
+
+## Lineup-construction rules, tested on real fields (`rule_backtest.py`, 11.8K entries, 2 contests, top-1% rate lift vs base)
+Consistent in both contests: chalk SP anywhere in the lineup (1.2x, 1.6x); hitter captain with <5% field captain share (2.2x, 1.5x). Not consistent: 5-stacks (0.9x vs 1.9x; tracks which team won).
+Chalk SP as captain pooled 1.8x (so "fade the pitcher captain" is NOT supported). Combined leverage rule (chalk SP in UTIL + hitter CPT <10% + 4-stack) pooled 1.9x, CIs overlap the single rules.
+Optimizer modes: `--mode ceiling` (unconstrained P(beat field)), `leverage`, `leverage5`; `compare_modes.py` runs them side by side. On 10/6 the three modes' top-3 lineups would have
+finished at average real ranks of ~1150 (ceiling), ~1280 (leverage), ~620 (leverage5) of 2,366: one slate, mostly luck, logged for data not as a conclusion.

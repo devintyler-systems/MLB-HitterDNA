@@ -3,6 +3,8 @@ import sys, json
 import numpy as np
 D = sys.argv[1]; label = sys.argv[2] if len(sys.argv) > 2 else D
 P = [json.loads(l) for l in open(f"{D}/players.jsonl")]; G = [json.loads(l) for l in open(f"{D}/games.jsonl")]
+if len(sys.argv) > 3:  # holdout: only games after the first N (sorted by game id) -- the slice fit_calibration.py did NOT see
+    keep = set(sorted({g['game'] for g in G})[int(sys.argv[3]):]); P = [r for r in P if r['game'] in keep]; G = [g for g in G if g['game'] in keep]
 def arr(rows, k): return np.array([r[k] for r in rows], float)
 H = [r for r in P if r['kind'] == 'H']; PI = [r for r in P if r['kind'] == 'P']
 print(f"=== {label}: {len(G)} games, {len(H)} hitter-games, {len(PI)} starter-games")
@@ -22,3 +24,8 @@ print("\nTAIL FREQUENCY, hitters (share of hitter-games)   observed | simulated"
 for k, f in ((0, 'p_zero'), (10, 'p_ge10'), (17, 'p_ge17'), (24, 'p_ge24')):
     obs = np.mean(a <= 0) if k == 0 else np.mean(a >= k); print(f"   {'<= 0 pts' if k == 0 else f'>= {k} pts':10} {100 * obs:6.2f}% | {100 * arr(H, f).mean():6.2f}%   ratio {obs / arr(H, f).mean():.2f}")
 tp = arr(G, 'total_pit'); print(f"\nGAME TOTAL RUNS: real mean {arr(G, 'real_total').mean():.2f} vs sim {arr(G, 'sim_total_mean').mean():.2f}; PIT deciles", ' '.join(f"{100 * x:4.1f}" for x in np.histogram(tp, bins=10, range=(0, 1))[0] / len(tp)), f"| real SD {arr(G, 'real_total').std():.2f} vs sim SD {arr(G, 'sim_total_sd').mean():.2f}")
+
+if 'sim_comp' in G[0]:
+    S_ = np.array([g['sim_comp'] for g in G]); R_ = np.array([g['real_comp'] for g in G])
+    print("\nCOMPONENTS per game (both teams, whole box score)   real | sim | ratio")
+    for i, n in enumerate(['hits', 'home runs', 'BB+HBP', 'stolen bases', 'runs', 'RBI']): print(f"   {n:13} {R_[:, i].mean():6.2f} | {S_[:, i].mean():6.2f} | {R_[:, i].mean() / S_[:, i].mean():.3f}")

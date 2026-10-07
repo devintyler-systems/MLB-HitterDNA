@@ -11,10 +11,12 @@ from datetime import date, timedelta
 import numpy as np
 ap = argparse.ArgumentParser(); ap.add_argument('start'); ap.add_argument('end'); ap.add_argument('out')
 ap.add_argument('--sims', type=int, default=3000); ap.add_argument('--workers', type=int, default=4)
-ap.add_argument('--offense-scale', default='1.0'); ap.add_argument('--sig-scale', default='1.0'); ap.add_argument('--reuse', action='store_true', help='reuse existing per-game events.json (only re-simulate)')
+ap.add_argument('--offense-scale', default=None); ap.add_argument('--sig-scale', default=None); ap.add_argument('--reuse', action='store_true', help='reuse existing per-game events.json (only re-simulate)')
 a = ap.parse_args()
 here = os.path.dirname(os.path.abspath(__file__)); OUT = a.out; os.makedirs(OUT, exist_ok=True)
-env = {**os.environ, 'DFS_CACHE': f"{OUT}/cache", 'DFS_OFFENSE_SCALE': a.offense_scale, 'DFS_SIG_SCALE': a.sig_scale}
+env = {**os.environ, 'DFS_CACHE': f"{OUT}/cache"}
+if a.offense_scale: env['DFS_OFFENSE_SCALE'] = a.offense_scale   # default None = simulate.py's fitted defaults
+if a.sig_scale: env['DFS_SIG_SCALE'] = a.sig_scale
 
 def jget(u):
     for _ in range(3):
@@ -81,7 +83,11 @@ def work(g):
                              pit=float((col < x).mean() + .5 * (col == x).mean()), p10=float(np.percentile(col, 10)), p90=float(np.percentile(col, 90)),
                              p_ge10=float((col >= 10).mean()), p_ge17=float((col >= 17).mean()), p_ge24=float((col >= 24).mean()), p_zero=float((col <= 0).mean())))
         tr = Z['total_runs']; real_tot = feed['liveData']['linescore']['teams']['away']['runs'] + feed['liveData']['linescore']['teams']['home']['runs']
-        grow = dict(game=pk, date=d, gt=gt, sim_total_mean=float(tr.mean()), sim_total_sd=float(tr.std()), real_total=real_tot, total_pit=float((tr < real_tot).mean() + .5 * (tr == real_tot).mean()))
+        comp = Z['comp'].mean(0).tolist(); A = dict(H=0, HR=0, BB=0, SB=0, R=0, RBI=0)
+        for side in ('away', 'home'):
+            tb = bx[side]['teamStats']['batting']
+            A['H'] += tb['hits']; A['HR'] += tb['homeRuns']; A['BB'] += tb['baseOnBalls'] + tb.get('hitByPitch', 0); A['SB'] += tb['stolenBases']; A['R'] += tb['runs']; A['RBI'] += tb['rbi']
+        grow = dict(sim_comp=comp, real_comp=[A['H'], A['HR'], A['BB'], A['SB'], A['R'], A['RBI']], game=pk, date=d, gt=gt, sim_total_mean=float(tr.mean()), sim_total_sd=float(tr.std()), real_total=real_tot, total_pit=float((tr < real_tot).mean() + .5 * (tr == real_tot).mean()))
         return ('ok', pk, rows, grow)
     except Exception as e:
         return ('skip', pk, f"exception {e!r}")

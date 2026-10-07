@@ -26,9 +26,25 @@ EVK = ('K', 'BB', 'HBP', 'B1', 'B2', 'B3', 'HR')
 import os
 SIG = dict(offense=.07, starter=.10, pen=.06, hitter=.08, power=.20)   # log-sd of game-level shocks
 _SS = float(os.environ.get('DFS_SIG_SCALE', 1.0)); SIG = {k: v * _SS for k, v in SIG.items()}
-OFF = float(os.environ.get('DFS_OFFENSE_SCALE', 1.0))                    # multiplies every hit-type probability (run-environment calibration knob)
+# Component defaults below were fit by fit_components.py on ALL 377 games of the 9/1-10/5/2026 backtest (fitting one half and testing the
+# other overfit run totals: halves differ by ~5% from sampling noise alone). Raw model: hits +6%, HR +9%, BB +6%, RBI +8%, steals -60%, runs +3%, and the errors cancelled in hitter points.
+OFF = float(os.environ.get('DFS_OFFENSE_SCALE', 0.966))
+# opt-in extra multiplier for division-series-and-later games: hitters there scored ~22-30% below the sim on only 144 hitter-games
+# (8 games), so it is NOT applied by default. Try 0.88-0.92 for playoff slates and judge with calibrate_field.py.
+OFF *= float(os.environ.get('DFS_POSTSEASON_SCALE', 1.0))
+# component knobs (fit by fit_components.py so each box-score component matches reality, not just the point total)
+HRS = float(os.environ.get('DFS_HR_SCALE', 0.971)); BBS = float(os.environ.get('DFS_BB_SCALE', 0.957))
+SBS = float(os.environ.get('DFS_SB_SCALE', 2.629)); ADV = float(os.environ.get('DFS_ADV_SCALE', 1.217))
+WILD = float(os.environ.get('DFS_WILD_RATE', 0.074))   # per-PA chance a runner on 3rd scores on a wild pitch/passed ball/error/balk (a run with NO RBI)
+# late replacements: a starter may be pinch-hit for / defensively replaced before his 3rd-or-later PA; his team's runs still count but the
+# DFS starter stops scoring. Hazard per late PA by lineup slot x DFS_SUB_SCALE (fit so starters' share of team production matches reality).
+SUBS = float(os.environ.get('DFS_SUB_SCALE', 1.5)); SUBQ = [.015, .015, .03, .03, .03, .07, .07, .07, .07]
+BENCH = None
+def adv(p): return min(p * ADV, 0.97)   # baserunning advancement / runner-scoring probabilities
 def shock(sd, z): return math.exp(sd * z - sd * sd / 2)               # mean-preserving lognormal
 
+_bp = dict(K=.24, BB=.08, HBP=.01, B1=.135, B2=.038, B3=.003, HR=.024); _acc = 0.0; BENCH = []
+for _e in ('K', 'BB', 'HBP', 'B1', 'B2', 'B3', 'HR'): _acc += _bp[_e]; BENCH.append(_acc)
 teams = list(ev['teams'].keys())
 assert len(teams) == 2, "need both lineups posted"
 side = {t: ev['teams'][t]['side'] for t in teams}
@@ -76,8 +92,8 @@ def sim_game():
             ksp = shock(SIG['starter'], -z_sp[o]); kpen = shock(SIG['pen'], -z_pen[o])
             def mk(v, f, k, tto=1.0):
                 d = {'K': v['K'] * k * (0.97 if tto > 1 else 1.0),
-                     'BB': v['BB'], 'HBP': v['HBP'],
-                     'B1': v['B1'] * f * tto * OFF, 'B2': v['B2'] * f * tto * OFF, 'B3': v['B3'] * f * tto * OFF, 'HR': v['HR'] * f * fhr * tto * OFF}
+                     'BB': v['BB'] * BBS, 'HBP': v['HBP'],
+                     'B1': v['B1'] * f * tto * OFF, 'B2': v['B2'] * f * tto * OFF, 'B3': v['B3'] * f * tto * OFF, 'HR': v['HR'] * f * fhr * tto * OFF * HRS}
                 s = sum(d.values())
                 if s > .97:
                     for e in ('B1', 'B2', 'B3', 'HR'): d[e] *= (.97 - d['K'] - d['BB'] - d['HBP']) / max(s - d['K'] - d['BB'] - d['HBP'], 1e-9)
@@ -85,10 +101,10 @@ def sim_game():
                 for e in EVK: acc += d[e]; c.append(acc)
                 return c
             lst.append(dict(name=h['name'], slot=h['slot'], sp=mk(h['vs_sp'], fsp, ksp), sp3=mk(h['vs_sp'], fsp, ksp, 1.04),
-                            pen=mk(h['vs_pen'], fpen, kpen), sb=min(h['sb_per_ob'] * 1.115, .45), col=col_of[('H', t, h['slot'])],
-                            n_sp=0))
+                            pen=mk(h['vs_pen'], fpen, kpen), sb=min(h['sb_per_ob'] * 1.115 * SBS, .6), col=col_of[('H', t, h['slot'])],
+                            n_sp=0, n_pa=0, out=False))
         P[t] = lst
-    pts = [0.0] * NC
+    pts = [0.0] * NC; saved = {}
     stat = {t: [dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0) for _ in range(9)] for t in teams}
     # pitching state per fielding team
     pit = {}
@@ -132,7 +148,11 @@ def sim_game():
             while outs < 3:
                 pull_if_needed(fld)
                 pc = pit[fld]; cur = pc['cur']
-                i = batter[bat]; hp = P[bat][i]; st = stat[bat][i]
+                i = batter[bat]; hp = P[bat][i]
+                if SUBS and not hp['out'] and hp['n_pa'] >= 2 and rnd.random() < SUBQ[hp['slot'] - 1] * SUBS:
+                    hp['out'] = True; saved[(bat, i)] = stat[bat][i]
+                    stat[bat][i] = dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0)   # bench hitter's production: counts for the team, not for the DFS starter
+                hp['n_pa'] += 1; st = stat[bat][i]
                 # stolen base attempt before the PA
                 if bases[0] and not bases[1] and outs < 2:
                     rp = P[bat][bases[0][0]]
@@ -142,8 +162,12 @@ def sim_game():
                         else:
                             bases[0] = None; outs += 1; cur['outs'] += 1
                             if outs >= 3: break
+                if bases[2] and WILD and rnd.random() < WILD:
+                    run_scores(bat, fld, bases[2]); bases[2] = None
+                    if bases[1]: bases[2] = bases[1]; bases[1] = None
                 u = rnd.random()
-                if cur['kind'] == 'SP':
+                if hp['out']: c = BENCH
+                elif cur['kind'] == 'SP':
                     c = hp['sp3'] if hp['n_sp'] >= 2 else hp['sp']; hp['n_sp'] += 1
                 else: c = hp['pen']
                 cur['bf'] += 1
@@ -169,10 +193,10 @@ def sim_game():
                         if r3: run_scores(bat, fld, r3); rbi += 1
                         nb = [(i, cur), None, None]
                         if r2:
-                            if rnd.random() < .60: run_scores(bat, fld, r2); rbi += 1
+                            if rnd.random() < adv(.60): run_scores(bat, fld, r2); rbi += 1
                             else: nb[2] = r2
                         if r1:
-                            if rnd.random() < .28 and nb[2] is None: nb[2] = r1
+                            if rnd.random() < adv(.28) and nb[2] is None: nb[2] = r1
                             elif nb[1] is None: nb[1] = r1
                             else: nb[2] = nb[2] or r1
                         bases = nb
@@ -182,7 +206,7 @@ def sim_game():
                             if r: run_scores(bat, fld, r); rbi += 1
                         nb = [None, (i, cur), None]
                         if r1:
-                            if rnd.random() < .45: run_scores(bat, fld, r1); rbi += 1
+                            if rnd.random() < adv(.45): run_scores(bat, fld, r1); rbi += 1
                             else: nb[2] = r1
                         bases = nb
                     elif k == 5:
@@ -205,12 +229,12 @@ def sim_game():
                         outs += 1; cur['outs'] += 1
                         if outs < 3:
                             if go:
-                                if bases[2] and rnd.random() < .45: run_scores(bat, fld, bases[2]); rbi += 1; bases[2] = None
-                                if bases[1] and not bases[2] and rnd.random() < .30: bases[2] = bases[1]; bases[1] = None
+                                if bases[2] and rnd.random() < adv(.45): run_scores(bat, fld, bases[2]); rbi += 1; bases[2] = None
+                                if bases[1] and not bases[2] and rnd.random() < adv(.30): bases[2] = bases[1]; bases[1] = None
                                 if bases[0] and not bases[1]: bases[1] = bases[0]; bases[0] = None
                             else:
-                                if bases[2] and rnd.random() < .55: run_scores(bat, fld, bases[2]); rbi += 1; bases[2] = None
-                                if bases[1] and not bases[2] and rnd.random() < .18: bases[2] = bases[1]; bases[1] = None
+                                if bases[2] and rnd.random() < adv(.55): run_scores(bat, fld, bases[2]); rbi += 1; bases[2] = None
+                                if bases[1] and not bases[2] and rnd.random() < adv(.18): bases[2] = bases[1]; bases[1] = None
                 st['rbi'] += rbi
                 batter[bat] = (i + 1) % 9
                 if half == 1 and inning >= 9 and score[home] > score[away]: outs = 3  # walk-off
@@ -220,6 +244,7 @@ def sim_game():
     # ---- DK points ----
     for t in teams:
         for j, s in enumerate(stat[t]):
+            s = saved.get((t, j), s)
             pts[P[t][j]['col']] = 3 * s['b1'] + 5 * s['b2'] + 8 * s['b3'] + 10 * s['hr'] + 2 * s['rbi'] + 2 * s['r'] + 2 * s['bb'] + 2 * s['hbp'] + 5 * s['sb']
     winner = away if score[away] > score[home] else home if score[home] > score[away] else None
     for t in teams:  # t fielding
@@ -229,14 +254,17 @@ def sim_game():
             if p['kind'] == 'SP' and winner == t and p['outs'] >= 15 and pc['exit_lead'] is not None and pc['exit_lead'] > 0 and not pc['blown']: win = 1
             if p['kind'] == 'SP' and winner == t and pc['exit_lead'] is None and p['outs'] >= 15: win = 1  # went the distance
             pts[p['col']] += .75 * p['outs'] + 2 * p['K'] + 4 * win - 2 * p['ER'] - .6 * (p['H'] + p['BB'] + p['HBP'])
-    return pts, score[away] + score[home], score
+    allst = [x for t in teams for x in stat[t]] + list(saved.values())      # starters + replaced starters' saved lines + bench
+    comp = [sum(x['b1'] + x['b2'] + x['b3'] + x['hr'] for x in allst), sum(x['hr'] for x in allst), sum(x['bb'] + x['hbp'] for x in allst),
+            sum(x['sb'] for x in allst), sum(x['r'] for x in allst), sum(x['rbi'] for x in allst)]
+    return pts, score[away] + score[home], score, comp
 
 M = np.zeros((NS, NC), dtype=np.float32); tot = np.zeros(NS, dtype=np.float32)
-sc_mat = np.zeros((NS, 2), dtype=np.float32)
+sc_mat = np.zeros((NS, 2), dtype=np.float32); comp_mat = np.zeros((NS, 6), dtype=np.float32)  # game totals: H, HR, BB+HBP, SB, R, RBI
 for s in range(NS):
-    p, t, sc = sim_game(); M[s] = p; tot[s] = t; sc_mat[s] = [sc[teams[0]], sc[teams[1]]]
+    p, t, sc, cp_ = sim_game(); M[s] = p; tot[s] = t; sc_mat[s] = [sc[teams[0]], sc[teams[1]]]; comp_mat[s] = cp_
     if (s + 1) % 5000 == 0: print(f"  {s + 1}/{NS} sims", flush=True)
-np.savez_compressed(f"{D}/sims.npz", M=M, names=np.array(cols), teams=np.array(ctm), kinds=np.array(kinds), total_runs=tot, team_order=np.array(teams), team_runs=sc_mat)
+np.savez_compressed(f"{D}/sims.npz", M=M, names=np.array(cols), teams=np.array(ctm), kinds=np.array(kinds), total_runs=tot, team_order=np.array(teams), team_runs=sc_mat, comp=comp_mat)
 print(f"simulated {NS} games; mean total runs {tot.mean():.2f}  team runs {dict(zip(teams, sc_mat.mean(0).round(2)))}")
 for j in np.argsort(-M.mean(0))[:14]:
     col = M[:, j]
