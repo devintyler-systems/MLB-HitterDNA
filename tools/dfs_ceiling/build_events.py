@@ -8,6 +8,12 @@ cfg = json.load(open(cfg_path))
 spec = importlib.util.spec_from_file_location('pm', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'projection_model.py'))
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 lin = json.load(open(f"{D}/lineups.json"))['lineups']
+_raw = json.load(open(f"{D}/raw/stats.json"))
+for _s in ('away', 'home'):  # starter_bf_mean_sd: "auto" = mean batters faced over his previous starts this season (before the slate date)
+    if cfg[_s].get('starter_bf_mean_sd') == 'auto':
+        _log = (_raw['pit'][str(cfg[_s]['starter_id'])]['log']['stats'] or [{}])[0].get('splits', [])
+        _bf = [float(g['stat']['battersFaced']) for g in _log if g.get('date', '9999') < cfg['date'] and float(g['stat'].get('gamesStarted', 0)) >= 1][-5:]
+        cfg[_s]['starter_bf_mean_sd'] = [sum(_bf) / len(_bf) if _bf else 21.0, 4.5]
 BVP = {int(k): v for k, v in cfg.get('bvp', {}).items()}
 
 orig = m.hitter_profile

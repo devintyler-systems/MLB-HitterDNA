@@ -18,6 +18,12 @@ bx = {int(r['player_id']): r for r in rd('sv_bat_xstats')}
 be = {int(r['player_id']): r for r in rd('sv_bat_ev')}
 px = {int(r['player_id']): r for r in rd('sv_pit_xstats')}
 sp = {int(r['player_id']): r for r in rd('sv_sprint')}
+# players below Savant's minimums (rookies, bench) get neutral stand-ins instead of crashing
+_NEUTRAL_BAT = {'ba': '0', 'est_ba': '0', 'slg': '0', 'est_slg': '0', 'est_woba': '0.315'}
+class _Dflt(dict):
+    def __init__(self, d, dflt): super().__init__(d); self.dflt = dflt
+    def __missing__(self, k): return self.dflt
+bx = _Dflt(bx, _NEUTRAL_BAT); sp = _Dflt(sp, {'sprint_speed': '27.0'})
 
 # ---------------- league constants (2026 regular season, all 30 teams) ----------------
 LG = dict(K=.2214, BB=.0889, HBP=.0115, B1=.1420, B2=.0408, B3=.0036, HR=.0303)
@@ -77,7 +83,7 @@ for pid, r in raw['pit'].items():
     bbreg = (g(s, 'baseOnBalls') + 170 * LG['BB']) / (bf + 170)
     hrreg = (g(s, 'homeRuns') + 500 * LG['HR']) / (bf + 500)
     spl = spl_pick(r, 'spl')
-    xw = float(px[pid]['est_woba']); xpa = float(px[pid]['pa'])
+    xw = float(px[pid]['est_woba']) if pid in px else LG_WOBA_PIT; xpa = float(px[pid]['pa']) if pid in px else 0.0
     xw_reg = (xw * xpa + LG_WOBA_PIT * 400) / (xpa + 400)
     hand = {}
     for side, desc in (('L', 'vs Left'), ('R', 'vs Right')):

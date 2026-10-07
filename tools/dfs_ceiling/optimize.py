@@ -30,6 +30,12 @@ ap.add_argument('--cpt-salary-power', type=float, default=2.5, help='captain pro
 ap.add_argument('--ownership', default=None, help='csv name,cpt_pct,util_pct (projected/actual ownership) overrides the proxy')
 ap.add_argument('--field-lineups', default=None, help='DK contest-standings lineups csv (Rank,..,Points,Lineup,...): score the REAL field in the sims')
 ap.add_argument('--allow-relievers', action='store_true', help='let relievers into lineups (default off: their usage in the sim is a guess the optimizer would exploit)')
+ap.add_argument('--mode', default='ceiling', choices=['ceiling', 'leverage', 'leverage5', 'custom'],
+                help="ceiling: unconstrained P(beat field). leverage: chalk SP forced into UTIL + hitter captain under 10%% field CPT share + 4-stack. "
+                     "leverage5: chalk SP in lineup + hitter captain under 5%% (the two ingredients that held up on both real fields). custom: use the flags below.")
+ap.add_argument('--chalk-sp', default=None, choices=['util', 'any'], help='force the most-owned pitcher into the lineup (as UTIL, or any slot)')
+ap.add_argument('--cpt-max-own', type=float, default=None, help='captain must be a HITTER whose field captain share is below this fraction (e.g. 0.05)')
+ap.add_argument('--min-stack', type=int, default=0, help='at least this many players from one team')
 ap.add_argument('--exclude', default='', help='comma-separated names to exclude (e.g. late scratches)')
 a = ap.parse_args()
 rng = np.random.default_rng(a.seed)
@@ -105,6 +111,14 @@ _n = (M.shape[1] if a.field_lineups else NP)
 _cpt = np.bincount([c for c, _ in field], minlength=_n) / len(field)
 _all = (np.bincount([x for _, r in field for x in r], minlength=_n)) / len(field)
 print("field ownership (CPT% / UTIL%): " + ', '.join(f"{_lab(i)} {100*_cpt[i]:.1f}/{100*_all[i]:.0f}" for i in np.argsort(-(_all + _cpt))[:8]))
+_cc = np.array([P[i]['col'] for i in range(NP)]) if a.field_lineups else np.arange(NP)
+own_cpt = _cpt[_cc]; own_all = _all[_cc] + _cpt[_cc]            # field captain share / total ownership per pool player
+if a.mode == 'leverage': a.chalk_sp, a.cpt_max_own, a.min_stack = 'util', 0.10, 4
+if a.mode == 'leverage5': a.chalk_sp, a.cpt_max_own, a.min_stack = 'any', 0.05, 0
+_pit = [i for i in range(NP) if P[i]['kind'] == 'P']
+chalk_i = max(_pit, key=lambda i: own_all[i]) if _pit else None
+if a.mode != 'ceiling' or a.chalk_sp or a.cpt_max_own is not None or a.min_stack:
+    print(f"CONSTRAINTS mode={a.mode}: chalk SP={P[chalk_i]['name'] if chalk_i is not None else None} ({100 * own_all[chalk_i]:.0f}% owned) slot={a.chalk_sp}  hitter-CPT share<{a.cpt_max_own}  min stack {a.min_stack}")
 Fmax = np.full(NS, -1e9, np.float32); F = np.zeros((NS, len(field)), np.int16)
 for j, (c, rest) in enumerate(field):
     F[:, j] = np.rint(4 * (1.5 * FX[:, c] + FX[:, rest].sum(1)))
@@ -122,12 +136,21 @@ def obj(c, rest, rows_): return float((score(c, rest, rows_) >= BENCH[rows_]).me
 def valid(c, rest):
     if c in rest or len(set(rest)) < 5: return False
     s = cpt[c] + util[list(rest)].sum()
-    return s <= CAP and len({tm[c], *tm[list(rest)]}) == 2
+    if s > CAP or len({tm[c], *tm[list(rest)]}) != 2: return False
+    if a.chalk_sp == 'util' and chalk_i is not None and chalk_i not in rest: return False
+    if a.chalk_sp == 'any' and chalk_i is not None and chalk_i != c and chalk_i not in rest: return False
+    if a.cpt_max_own is not None and (P[c]['kind'] != 'H' or own_cpt[c] >= a.cpt_max_own): return False
+    if a.min_stack:
+        n1 = int(tm[c] + tm[list(rest)].sum())
+        if max(n1, 6 - n1) < a.min_stack: return False
+    return True
 
 def random_start():
-    while True:
+    for _ in range(400000):
         c = rng.choice(NP); rest = list(rng.choice(NP, 5, replace=False))
+        if chalk_i is not None and a.chalk_sp and rng.random() < .8 and chalk_i not in rest and chalk_i != c: rest[0] = chalk_i
         if valid(c, rest): return c, rest
+    raise SystemExit("constraints are infeasible for this pool/salary cap")
 
 def climb(c, rest, rows_):
     best = obj(c, rest, rows_); improved = True
@@ -194,7 +217,7 @@ for (c, r), d in top[:8]:
 e = describe(ev_best[1], ev_best[2])
 print(f"\nEV-MAX lineup for contrast: mean {e['mean']:.1f}  P({a.objective}) {100 * e['test']:.2f}%  p99 {e['p99']:.1f}  ${e['salary']}\n   CPT {e['cpt']} | " + ', '.join(e['util']))
 
-result = dict(objective=a.objective, field=len(field), n_sims=NS, best=[d for _, d in top[:8]], ev_max=e, portfolio=[])
+result = dict(mode=a.mode, objective=a.objective, field=len(field), n_sims=NS, best=[d for _, d in top[:8]], ev_max=e, portfolio=[])
 if a.portfolio > 1:
     chosen, covered = [], np.zeros(NS, bool)
     pool_l = [(k, np.asarray(score(k[0], k[1]) >= BENCH)) for k, _ in top]

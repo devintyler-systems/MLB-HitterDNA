@@ -23,7 +23,10 @@ ev = json.load(open(f"{D}/events.json"))
 rnd = random.Random(SEED)
 
 EVK = ('K', 'BB', 'HBP', 'B1', 'B2', 'B3', 'HR')
+import os
 SIG = dict(offense=.07, starter=.10, pen=.06, hitter=.08, power=.20)   # log-sd of game-level shocks
+_SS = float(os.environ.get('DFS_SIG_SCALE', 1.0)); SIG = {k: v * _SS for k, v in SIG.items()}
+OFF = float(os.environ.get('DFS_OFFENSE_SCALE', 1.0))                    # multiplies every hit-type probability (run-environment calibration knob)
 def shock(sd, z): return math.exp(sd * z - sd * sd / 2)               # mean-preserving lognormal
 
 teams = list(ev['teams'].keys())
@@ -74,7 +77,7 @@ def sim_game():
             def mk(v, f, k, tto=1.0):
                 d = {'K': v['K'] * k * (0.97 if tto > 1 else 1.0),
                      'BB': v['BB'], 'HBP': v['HBP'],
-                     'B1': v['B1'] * f * tto, 'B2': v['B2'] * f * tto, 'B3': v['B3'] * f * tto, 'HR': v['HR'] * f * fhr * tto}
+                     'B1': v['B1'] * f * tto * OFF, 'B2': v['B2'] * f * tto * OFF, 'B3': v['B3'] * f * tto * OFF, 'HR': v['HR'] * f * fhr * tto * OFF}
                 s = sum(d.values())
                 if s > .97:
                     for e in ('B1', 'B2', 'B3', 'HR'): d[e] *= (.97 - d['K'] - d['BB'] - d['HBP']) / max(s - d['K'] - d['BB'] - d['HBP'], 1e-9)

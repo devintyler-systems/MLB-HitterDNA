@@ -10,13 +10,22 @@ os.makedirs(f"{out}/raw", exist_ok=True)
 d0 = date.fromisoformat(cfg['date']); season = d0.year
 UA = {"User-Agent": "Mozilla/5.0"}
 
+import hashlib
+CACHE = os.environ.get("DFS_CACHE")  # optional disk cache keyed by URL (used by backtest_games.py to share fetches)
+if CACHE: os.makedirs(CACHE, exist_ok=True)
 def get(u, hdr=None, raw=False):
     err = None
+    cp = f"{CACHE}/{hashlib.md5(u.encode()).hexdigest()}" if CACHE and "betlogic" not in u else None
+    if cp and os.path.exists(cp):
+        body = open(cp, "rb").read()
+        return body if raw else json.loads(body)
     for _ in range(3):
         try:
             req = urllib.request.Request(u, headers={**UA, **(hdr or {})})
             body = urllib.request.urlopen(req, timeout=40).read()
-            return body if raw else json.loads(body)
+            out = body if raw else json.loads(body)
+            if cp: open(cp, "wb").write(body)
+            return out
         except Exception as e:
             err = e
     return {"error": str(err), "u": u}
