@@ -9,6 +9,8 @@ python fetch_inputs.py slates/<slate>.json <data_dir>      # statsapi + Savant +
 python build_events.py slates/<slate>.json <data_dir>      # per-PA event odds per hitter vs starter and vs pen
 python simulate.py <data_dir> 40000                        # full-game Monte Carlo -> DK points per player per game
 python optimize.py <data_dir> DKSalaries.csv --portfolio 4 # ceiling optimizer (+ multi-entry portfolio)
+python build_pen.py slates/<slate>.json                    # reliever-usage weights from the series' rest/workload (writes into the slate config)
+python slate_report.py slates/<slate>.json <data_dir>      # per-hitter / per-starter projections, ceiling odds, why-lines -> report.md, hitters.csv, pitchers.csv
 python score_actuals.py <game_pk>                          # actual DK points after the game (backtesting)
 python calibrate_field.py <data_dir> <standings.csv>       # score the REAL field in the sims, compare to reality
 python field_study.py <standings.csv> <game_pk>            # who finishes top 1%: captain type, stacks, ownership
@@ -62,3 +64,25 @@ Consistent in both contests: chalk SP anywhere in the lineup (1.2x, 1.6x); hitte
 Chalk SP as captain pooled 1.8x (so "fade the pitcher captain" is NOT supported). Combined leverage rule (chalk SP in UTIL + hitter CPT <10% + 4-stack) pooled 1.9x, CIs overlap the single rules.
 Optimizer modes: `--mode ceiling` (unconstrained P(beat field)), `leverage`, `leverage5`; `compare_modes.py` runs them side by side. On 10/6 the three modes' top-3 lineups would have
 finished at average real ranks of ~1150 (ceiling), ~1280 (leverage), ~620 (leverage5) of 2,366: one slate, mostly luck, logged for data not as a conclusion.
+
+## 2026-10-07 additions
+- **Form now spans regular season + postseason**: statsapi will not union game types in `byDateRange`, so `fetch_inputs.py` pulls R/F/D/L/W separately and merges (before this, a hitter's "last 14 days" ignored this week's playoff games).
+- **Park HR factors by batter side and pull tendency**: `park_factors.hr` may be `{"L": x, "R": y}`; each hitter's effect is scaled by his pulled-air share (BetLogic card, league ~22%), so a pull-side lefty gets the full Yankee Stadium porch effect and a spray hitter little. `weather_hr` is a per-game temperature/wind multiplier (~+0.25%/F vs 72F; ~0.9%/mph along the axis).
+- **Postseason scale**: 19 playoff games (342 hitter-games, through 10/6): raw sim ratio 0.885 pooled; wild card 0.993, division series 0.788. `DFS_POSTSEASON_SCALE` 0.90 fits the pooled sample, 0.80 the division series alone. Tonight's headline uses 0.88 with 1.0 and 0.80 as sensitivity (`sims_ps*.npz`). Not fitted to enough games to trust beyond +/-0.05.
+- `simulate.py` now also saves per-hitter components (H, HR, R, RBI, BB, K, SB, PA) and per-starter lines (outs, K, ER, H, BB, relievers used).
+
+## 2026-10-08 additions: ownership proxy, chalk-captain mode, TB@NYY result
+- **`fit_ownership.py` + `ownership_proxy.json`**: log(total ownership) ~ log(our simulated DK mean) + log(salary) + pitcher + top-3 slot + AvgPointsPerGame + cheap-regular-hitter flag (ridge). Fit on the 10/6 MIL@SD and 10/7 TB@NYY Showdown fields: out-of-sample R2 0.88/0.89 (fit on one slate, predict the other), captain propensity ~ salary^2.6. This replaces the old AvgPointsPerGame**p proxy (R2 0.26) as the default field model in `optimize.py` (`--legacy-own` restores it). Two slates, so treat it as promising, not settled; the cheap-regular feature was added after seeing a miss on the second slate.
+- **`--mode chalkcpt`**: captain forced to the most-owned starting pitcher. Pooled over three real fields, chalk-SP-as-captain showed a 1.8x top-1% lift (1.1x, 2.0x, 2.4x), owning the chalk SP in any slot 1.5x, hitter captains under 5% share 1.6x (but 0 of 68 on 10/7), 4+/5+ stacks 1.2x/1.7x (tracks which team won).
+- **10/7 TB@NYY $1K Showdown (277 entries)**, one lineup entered (CPT Rice, rank 87, 52.05). Our four-lineup portfolio would have scored 52.1 / 38.1 / 25.5 / 50.0 (ranks 87, 202, 254, 113). The top seven finishers all captained Fried (42% of the field). Sim vs reality: hitters 5.33 actual vs 5.52 simulated, Fried 14.55 vs 14.77, Martinez 6.65 vs 11.26, total runs 7 vs 6.7; field median 45.5 vs 48.2 sim, p90 60.0 vs 68.7. The sim gave the real top-7 entries 0.78% win probability vs a 0.51% field average.
+- **Pre-lock test with the proxy (fit on 10/6 only)**: lineups chosen against the proxy field finished at mean real rank 50 (ceiling), 96 (leverage5), 111 (chalkcpt) of 277, vs 164 for the portfolio built against the old proxy. One slate; do not over-read it.
+
+## 2026-10-08 (night): MIL@SD result, postseason scale, reliever wins
+- **10/7 MIL@SD $8K Mini-Max (9,461 entries)**: all four portfolio lineups entered. Results: CPT Tatis 50.35 (rank 1442, top 15%), CPT Gasser/Chourio stack 44.90 (2644), CPT Buehler SD stack 37.63 (4820), CPT Gasser/both starters 34.65 (5765). Winner 83.15 (CPT Tatis, Gasser, Bauers, Yelich, Frelick, plus $4,000 reliever Ashby: 1 W, 3 K, 15.55). MIL won 3-1.
+- **Ownership proxy holds out of sample**: on a slate it never saw (MIL@SD), the 10/6 + 10/7-TB@NYY fit predicted real total ownership with R2 0.89. Refit on all three slates; every cross-slate fit scores R2 0.82-0.88 (`fit_ownership.py`).
+- **Postseason scale for division-series games is ~0.80, not 0.88**: tonight's two games pooled actual/sim hitter points were 0.80 at scale 1.0 (0.93 at 0.88, 1.03 at 0.80); the 19-game backtest said 0.80 for the division series alone. Slate configs now carry `postseason_scale` (read by `build_events.py`/`simulate.py`; env `DFS_POSTSEASON_SCALE` overrides). With 0.80 the real-field median matches closely (TB@NYY 46.2 sim vs 45.5 real; MIL@SD 40.7 vs 38.0), but the sim's 90th-percentile lineup score still runs 10-19% above reality.
+- **Not an over-projection of stars**: backtest hitters bucketed by simulated mean show actual/sim ratios 0.95-1.04 in every bucket, calibration slope 1.07.
+- **Pitcher-of-record wins are now simulated** (the pitcher on the mound when the winner took its final lead; a starter needs 15 outs, else the next pitcher), so relievers can earn the +4. Starter calibration unchanged on the 377-game backtest (12.36 sim vs 12.20 real).
+- **Relievers stay excluded by default**: across four real fields the top-1% rate of entries holding a non-starter was 0.24% vs 1.18%, 2.30% vs 0.83%, 0% vs 1.54%, 1.26% vs 0.99% (no consistent edge). Simulated reliever means are 1-3 DK points at $4,000.
+- **Mode comparison on this slate (real field, one game)**: average real rank of each mode's top-3: chalkcpt ~2,175, ceiling ~5,137, leverage5 ~7,954 of 9,461. Pooled over four fields chalk-SP-as-captain still shows the strongest lift (~1.8x). Treat all of it as noisy.
+- `compare_modes.py --extra=--allow-relievers` (use the `=` form) passes flags through to `optimize.py`.

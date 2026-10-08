@@ -31,7 +31,7 @@ _SS = float(os.environ.get('DFS_SIG_SCALE', 1.0)); SIG = {k: v * _SS for k, v in
 OFF = float(os.environ.get('DFS_OFFENSE_SCALE', 0.966))
 # opt-in extra multiplier for division-series-and-later games: hitters there scored ~22-30% below the sim on only 144 hitter-games
 # (8 games), so it is NOT applied by default. Try 0.88-0.92 for playoff slates and judge with calibrate_field.py.
-OFF *= float(os.environ.get('DFS_POSTSEASON_SCALE', 1.0))
+OFF *= float(os.environ.get('DFS_POSTSEASON_SCALE', ev.get('postseason_scale') or 1.0))
 # component knobs (fit by fit_components.py so each box-score component matches reality, not just the point total)
 HRS = float(os.environ.get('DFS_HR_SCALE', 0.971)); BBS = float(os.environ.get('DFS_BB_SCALE', 0.957))
 SBS = float(os.environ.get('DFS_SB_SCALE', 2.629)); ADV = float(os.environ.get('DFS_ADV_SCALE', 1.217))
@@ -105,7 +105,7 @@ def sim_game():
                             n_sp=0, n_pa=0, out=False))
         P[t] = lst
     pts = [0.0] * NC; saved = {}
-    stat = {t: [dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0) for _ in range(9)] for t in teams}
+    stat = {t: [dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0, k=0, pa=0) for _ in range(9)] for t in teams}
     # pitching state per fielding team
     pit = {}
     for t in teams:  # t = fielding team
@@ -130,8 +130,11 @@ def sim_game():
             pc['cur'] = dict(kind='RP', col=col_of[('RP', fld, nm)], outs=0, K=0, H=0, BB=0, HBP=0, ER=0, bf=0, plan=planned_outs(nm))
             pc['all'].append(pc['cur'])
 
+    lead_p = {t: None for t in teams}   # pitcher on the mound for team t when t last took a lead it still holds (pitcher of record)
     def run_scores(bat, fld, runner):  # runner = (batter_idx, pitcher_dict or None)
         score[bat] += 1
+        if score[bat] == score[fld]: lead_p[fld] = None
+        elif score[bat] > score[fld] and score[bat] - 1 <= score[fld]: lead_p[bat] = pit[bat]['cur']
         stat[bat][runner[0]]['r'] += 1
         if runner[1] is not None: runner[1]['ER'] += 1
         pc = pit[fld]
@@ -151,8 +154,8 @@ def sim_game():
                 i = batter[bat]; hp = P[bat][i]
                 if SUBS and not hp['out'] and hp['n_pa'] >= 2 and rnd.random() < SUBQ[hp['slot'] - 1] * SUBS:
                     hp['out'] = True; saved[(bat, i)] = stat[bat][i]
-                    stat[bat][i] = dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0)   # bench hitter's production: counts for the team, not for the DFS starter
-                hp['n_pa'] += 1; st = stat[bat][i]
+                    stat[bat][i] = dict(b1=0, b2=0, b3=0, hr=0, rbi=0, r=0, bb=0, hbp=0, sb=0, k=0, pa=0)   # bench hitter's production: counts for the team, not for the DFS starter
+                hp['n_pa'] += 1; st = stat[bat][i]; st['pa'] += 1
                 # stolen base attempt before the PA
                 if bases[0] and not bases[1] and outs < 2:
                     rp = P[bat][bases[0][0]]
@@ -175,7 +178,7 @@ def sim_game():
                 while k < 7 and u >= c[k]: k += 1
                 rbi = 0
                 if k == 0:                                   # K
-                    outs += 1; cur['outs'] += 1; cur['K'] += 1
+                    st['k'] += 1; outs += 1; cur['outs'] += 1; cur['K'] += 1
                 elif k in (1, 2):                            # BB / HBP: forced advances
                     if k == 1: st['bb'] += 1; cur['BB'] += 1
                     else: st['hbp'] += 1; cur['HBP'] += 1
@@ -247,24 +250,31 @@ def sim_game():
             s = saved.get((t, j), s)
             pts[P[t][j]['col']] = 3 * s['b1'] + 5 * s['b2'] + 8 * s['b3'] + 10 * s['hr'] + 2 * s['rbi'] + 2 * s['r'] + 2 * s['bb'] + 2 * s['hbp'] + 5 * s['sb']
     winner = away if score[away] > score[home] else home if score[home] > score[away] else None
+    wp = None   # winning pitcher: pitcher of record when the winner took its final lead; a starter needs 15 outs, else the next pitcher used
+    if winner is not None:
+        wp = lead_p[winner] or pit[winner]['all'][0]
+        if wp['kind'] == 'SP' and wp['outs'] < 15: wp = pit[winner]['all'][1] if len(pit[winner]['all']) > 1 else wp
     for t in teams:  # t fielding
         pc = pit[t]
         for p in pc['all']:
-            win = 0
-            if p['kind'] == 'SP' and winner == t and p['outs'] >= 15 and pc['exit_lead'] is not None and pc['exit_lead'] > 0 and not pc['blown']: win = 1
-            if p['kind'] == 'SP' and winner == t and pc['exit_lead'] is None and p['outs'] >= 15: win = 1  # went the distance
+            win = 1 if (wp is p) else 0
             pts[p['col']] += .75 * p['outs'] + 2 * p['K'] + 4 * win - 2 * p['ER'] - .6 * (p['H'] + p['BB'] + p['HBP'])
     allst = [x for t in teams for x in stat[t]] + list(saved.values())      # starters + replaced starters' saved lines + bench
     comp = [sum(x['b1'] + x['b2'] + x['b3'] + x['hr'] for x in allst), sum(x['hr'] for x in allst), sum(x['bb'] + x['hbp'] for x in allst),
             sum(x['sb'] for x in allst), sum(x['r'] for x in allst), sum(x['rbi'] for x in allst)]
-    return pts, score[away] + score[home], score, comp
+    hc = [[(lambda s_: [s_['b1'] + s_['b2'] + s_['b3'] + s_['hr'], s_['hr'], s_['r'], s_['rbi'], s_['bb'] + s_['hbp'], s_['k'], s_['sb'], s_['pa']])(saved.get((t, j), stat[t][j])) for j in range(9)] for t in teams]
+    sc2 = []
+    for t in teams:
+        p0 = pit[t]['all'][0]; won = 0
+        sc2.append([p0['outs'], p0['K'], p0['ER'], p0['H'], p0['BB'] + p0['HBP'], len(pit[t]['all']) - 1])
+    return pts, score[away] + score[home], score, comp, hc, sc2
 
 M = np.zeros((NS, NC), dtype=np.float32); tot = np.zeros(NS, dtype=np.float32)
-sc_mat = np.zeros((NS, 2), dtype=np.float32); comp_mat = np.zeros((NS, 6), dtype=np.float32)  # game totals: H, HR, BB+HBP, SB, R, RBI
+sc_mat = np.zeros((NS, 2), dtype=np.float32); comp_mat = np.zeros((NS, 6), dtype=np.float32); HC = np.zeros((NS, 2, 9, 8), dtype=np.int8); SC = np.zeros((NS, 2, 6), dtype=np.int16)  # HC: per hitter [H,HR,R,RBI,BB+HBP,K,SB,PA]; SC: per starter [outs,K,ER,H,BB+HBP,relievers used]
 for s in range(NS):
-    p, t, sc, cp_ = sim_game(); M[s] = p; tot[s] = t; sc_mat[s] = [sc[teams[0]], sc[teams[1]]]; comp_mat[s] = cp_
+    p, t, sc, cp_, hc_, sc2_ = sim_game(); M[s] = p; tot[s] = t; sc_mat[s] = [sc[teams[0]], sc[teams[1]]]; comp_mat[s] = cp_; HC[s] = np.array(hc_, dtype=np.int8); SC[s] = np.array(sc2_, dtype=np.int16)
     if (s + 1) % 5000 == 0: print(f"  {s + 1}/{NS} sims", flush=True)
-np.savez_compressed(f"{D}/sims.npz", M=M, names=np.array(cols), teams=np.array(ctm), kinds=np.array(kinds), total_runs=tot, team_order=np.array(teams), team_runs=sc_mat, comp=comp_mat)
+np.savez_compressed(f"{D}/sims.npz", M=M, names=np.array(cols), teams=np.array(ctm), kinds=np.array(kinds), total_runs=tot, team_order=np.array(teams), team_runs=sc_mat, comp=comp_mat, hc=HC, sc=SC)
 print(f"simulated {NS} games; mean total runs {tot.mean():.2f}  team runs {dict(zip(teams, sc_mat.mean(0).round(2)))}")
 for j in np.argsort(-M.mean(0))[:14]:
     col = M[:, j]

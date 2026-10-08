@@ -6,7 +6,7 @@ import sys, json, subprocess, os, re, csv, argparse, unicodedata
 import numpy as np
 ap = argparse.ArgumentParser(); ap.add_argument('data_dir'); ap.add_argument('salaries')
 ap.add_argument('--field-lineups'); ap.add_argument('--actuals'); ap.add_argument('--portfolio', type=int, default=4)
-ap.add_argument('--starts', type=int, default=100); ap.add_argument('--modes', default='ceiling,leverage,leverage5')
+ap.add_argument('--starts', type=int, default=100); ap.add_argument('--extra', default='', help='extra args passed to optimize.py, e.g. "--allow-relievers"'); ap.add_argument('--modes', default='ceiling,leverage,leverage5')
 a = ap.parse_args()
 def norm(s): return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn').lower().replace('.', '').strip()
 act = {norm(k): v for k, v in json.load(open(a.actuals)).items()} if a.actuals else None
@@ -18,6 +18,7 @@ for mode in a.modes.split(','):
     f = f"{a.data_dir}/cmp_{mode}.json"
     cmd = [sys.executable, f"{here}/optimize.py", a.data_dir, a.salaries, '--mode', mode, '--portfolio', str(a.portfolio), '--starts', str(a.starts), '--out', f]
     if a.field_lineups: cmd += ['--field-lineups', a.field_lineups]
+    if a.extra: cmd += a.extra.split()
     print(f"running mode={mode} ...", flush=True); subprocess.run(cmd, check=True, capture_output=True)
     out[mode] = json.load(open(f))
 def actual(l):
