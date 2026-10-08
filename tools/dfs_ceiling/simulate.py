@@ -31,7 +31,7 @@ _SS = float(os.environ.get('DFS_SIG_SCALE', 1.0)); SIG = {k: v * _SS for k, v in
 OFF = float(os.environ.get('DFS_OFFENSE_SCALE', 0.966))
 # opt-in extra multiplier for division-series-and-later games: hitters there scored ~22-30% below the sim on only 144 hitter-games
 # (8 games), so it is NOT applied by default. Try 0.88-0.92 for playoff slates and judge with calibrate_field.py.
-OFF *= float(os.environ.get('DFS_POSTSEASON_SCALE', 1.0))
+OFF *= float(os.environ.get('DFS_POSTSEASON_SCALE', ev.get('postseason_scale') or 1.0))
 # component knobs (fit by fit_components.py so each box-score component matches reality, not just the point total)
 HRS = float(os.environ.get('DFS_HR_SCALE', 0.971)); BBS = float(os.environ.get('DFS_BB_SCALE', 0.957))
 SBS = float(os.environ.get('DFS_SB_SCALE', 2.629)); ADV = float(os.environ.get('DFS_ADV_SCALE', 1.217))
@@ -130,8 +130,11 @@ def sim_game():
             pc['cur'] = dict(kind='RP', col=col_of[('RP', fld, nm)], outs=0, K=0, H=0, BB=0, HBP=0, ER=0, bf=0, plan=planned_outs(nm))
             pc['all'].append(pc['cur'])
 
+    lead_p = {t: None for t in teams}   # pitcher on the mound for team t when t last took a lead it still holds (pitcher of record)
     def run_scores(bat, fld, runner):  # runner = (batter_idx, pitcher_dict or None)
         score[bat] += 1
+        if score[bat] == score[fld]: lead_p[fld] = None
+        elif score[bat] > score[fld] and score[bat] - 1 <= score[fld]: lead_p[bat] = pit[bat]['cur']
         stat[bat][runner[0]]['r'] += 1
         if runner[1] is not None: runner[1]['ER'] += 1
         pc = pit[fld]
@@ -247,12 +250,14 @@ def sim_game():
             s = saved.get((t, j), s)
             pts[P[t][j]['col']] = 3 * s['b1'] + 5 * s['b2'] + 8 * s['b3'] + 10 * s['hr'] + 2 * s['rbi'] + 2 * s['r'] + 2 * s['bb'] + 2 * s['hbp'] + 5 * s['sb']
     winner = away if score[away] > score[home] else home if score[home] > score[away] else None
+    wp = None   # winning pitcher: pitcher of record when the winner took its final lead; a starter needs 15 outs, else the next pitcher used
+    if winner is not None:
+        wp = lead_p[winner] or pit[winner]['all'][0]
+        if wp['kind'] == 'SP' and wp['outs'] < 15: wp = pit[winner]['all'][1] if len(pit[winner]['all']) > 1 else wp
     for t in teams:  # t fielding
         pc = pit[t]
         for p in pc['all']:
-            win = 0
-            if p['kind'] == 'SP' and winner == t and p['outs'] >= 15 and pc['exit_lead'] is not None and pc['exit_lead'] > 0 and not pc['blown']: win = 1
-            if p['kind'] == 'SP' and winner == t and pc['exit_lead'] is None and p['outs'] >= 15: win = 1  # went the distance
+            win = 1 if (wp is p) else 0
             pts[p['col']] += .75 * p['outs'] + 2 * p['K'] + 4 * win - 2 * p['ER'] - .6 * (p['H'] + p['BB'] + p['HBP'])
     allst = [x for t in teams for x in stat[t]] + list(saved.values())      # starters + replaced starters' saved lines + bench
     comp = [sum(x['b1'] + x['b2'] + x['b3'] + x['hr'] for x in allst), sum(x['hr'] for x in allst), sum(x['bb'] + x['hbp'] for x in allst),

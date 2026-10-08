@@ -27,7 +27,7 @@ def wrapped(pid, pit, gc, pen, park, sb):  # tiny BvP nudge (150-AB-equivalent p
     return p
 m.hitter_profile = wrapped
 
-out = {'date': cfg['date'], 'game_pk': cfg['game_pk'], 'teams': {}, 'relievers': cfg['relievers'], 'bulk': cfg['bulk_relievers']}
+out = {'postseason_scale': cfg.get('postseason_scale'), 'date': cfg['date'], 'game_pk': cfg['game_pk'], 'teams': {}, 'relievers': cfg['relievers'], 'bulk': cfg['bulk_relievers']}
 # away hitters face the HOME starter and vice versa
 for side, opp in (('away', 'home'), ('home', 'away')):
     t, o = cfg[side], cfg[opp]
