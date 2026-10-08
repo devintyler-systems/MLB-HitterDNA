@@ -14,7 +14,7 @@ How it works
   4. --portfolio k picks k lineups maximizing the chance that AT LEAST ONE of them wins (multi-entry diversification).
 Captain scores 1.5x and costs the CPT price; 6 players, both teams, <= $50,000.
 """
-import argparse, csv, json, unicodedata
+import argparse, csv, json, os, unicodedata
 import numpy as np
 
 ap = argparse.ArgumentParser()
@@ -30,12 +30,15 @@ ap.add_argument('--cpt-salary-power', type=float, default=2.5, help='captain pro
 ap.add_argument('--ownership', default=None, help='csv name,cpt_pct,util_pct (projected/actual ownership) overrides the proxy')
 ap.add_argument('--field-lineups', default=None, help='DK contest-standings lineups csv (Rank,..,Points,Lineup,...): score the REAL field in the sims')
 ap.add_argument('--allow-relievers', action='store_true', help='let relievers into lineups (default off: their usage in the sim is a guess the optimizer would exploit)')
-ap.add_argument('--mode', default='ceiling', choices=['ceiling', 'leverage', 'leverage5', 'custom'],
+ap.add_argument('--mode', default='ceiling', choices=['ceiling', 'leverage', 'leverage5', 'chalkcpt', 'custom'],
                 help="ceiling: unconstrained P(beat field). leverage: chalk SP forced into UTIL + hitter captain under 10%% field CPT share + 4-stack. "
                      "leverage5: chalk SP in lineup + hitter captain under 5%% (the two ingredients that held up on both real fields). custom: use the flags below.")
 ap.add_argument('--chalk-sp', default=None, choices=['util', 'any'], help='force the most-owned pitcher into the lineup (as UTIL, or any slot)')
 ap.add_argument('--cpt-max-own', type=float, default=None, help='captain must be a HITTER whose field captain share is below this fraction (e.g. 0.05)')
+ap.add_argument('--cpt-chalk-sp', action='store_true', help='captain must be the most-owned starting pitcher (the other five slots still optimized for ceiling)')
 ap.add_argument('--min-stack', type=int, default=0, help='at least this many players from one team')
+ap.add_argument('--ownership-proxy', default=None, help='json from fit_ownership.py (default: ownership_proxy.json next to this script, if present)')
+ap.add_argument('--legacy-own', action='store_true', help='use the old AvgPointsPerGame**p field instead of the fitted ownership proxy')
 ap.add_argument('--exclude', default='', help='comma-separated names to exclude (e.g. late scratches)')
 a = ap.parse_args()
 rng = np.random.default_rng(a.seed)
@@ -56,7 +59,7 @@ for r in rows:
     n = norm(r['Name'])
     if n in excl or r['Status'] == 'IL' or n not in col: continue
     if kinds[col[n]] == 'RP' and not a.allow_relievers: continue
-    d = pool.setdefault(n, dict(name=r['Name'], col=col[n], team=r['TeamAbbrev'], kind=kinds[col[n]], avg=float(r['AvgPointsPerGame'] or 0)))
+    d = pool.setdefault(n, dict(name=r['Name'], col=col[n], team=r['TeamAbbrev'], kind=kinds[col[n]], avg=float(r['AvgPointsPerGame'] or 0), slot=int(r['Starting']) if (r.get('Starting') or '').isdigit() else 0))
     d['cpt_id' if r['Roster Position'] == 'CPT' else 'util_id'] = r['ID']
     d['cpt' if r['Roster Position'] == 'CPT' else 'util'] = int(r['Salary'])
 P = [d for d in pool.values() if 'cpt' in d and 'util' in d]
@@ -72,8 +75,17 @@ if a.ownership:
     own = {norm(r['name']): r for r in csv.DictReader(open(a.ownership))}
     wc = np.array([float(own.get(norm(p['name']), {}).get('cpt_pct', 0.05)) for p in P]); wu = np.array([float(own.get(norm(p['name']), {}).get('util_pct', 0.2)) for p in P])
 else:
-    wu = np.array([max(p['avg'], 0.5) ** a.own_power for p in P]) * np.where(is_rp, 0.04, 1.0)   # relievers rarely drafted
-    wc = wu * (util / util.mean()) ** a.cpt_salary_power
+    _pp = a.ownership_proxy or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ownership_proxy.json')
+    if os.path.exists(_pp) and not a.legacy_own:
+        px = json.load(open(_pp)); cf = np.array(px['coef'])
+        feats = np.array([[1, np.log(max(float(X[:, i].mean()), .5)), np.log(util[i] / 1000), float(P[i]['kind'] == 'P'), float(0 < P[i]['slot'] <= 3), P[i]['avg'] / 10,
+                           float(P[i]['kind'] != 'P' and util[i] <= 4600 and P[i]['slot'] > 0)] for i in range(NP)])
+        pred = np.clip(np.exp(feats @ cf), .005, .95) * np.where(is_rp, 0.04, 1.0); pred = pred * (5.9 / pred.sum())
+        wu = pred.copy(); wc = pred * (util / util.mean()) ** px.get('cpt_salary_exp', 2.5)
+        print(f"ownership proxy ({os.path.basename(_pp)}, fit on {px.get('n_slates', '?')} slate(s)): " + ', '.join(f"{P[i]['name']} {100 * min(pred[i], .99):.0f}%" for i in np.argsort(-pred)[:7]))
+    else:
+        wu = np.array([max(p['avg'], 0.5) ** a.own_power for p in P]) * np.where(is_rp, 0.04, 1.0)   # legacy: relievers rarely drafted
+        wc = wu * (util / util.mean()) ** a.cpt_salary_power
 wu = wu / wu.sum(); wc = wc / wc.sum()
 def draw_field(n):
     out = []; tries = 0
@@ -115,9 +127,10 @@ _cc = np.array([P[i]['col'] for i in range(NP)]) if a.field_lineups else np.aran
 own_cpt = _cpt[_cc]; own_all = _all[_cc] + _cpt[_cc]            # field captain share / total ownership per pool player
 if a.mode == 'leverage': a.chalk_sp, a.cpt_max_own, a.min_stack = 'util', 0.10, 4
 if a.mode == 'leverage5': a.chalk_sp, a.cpt_max_own, a.min_stack = 'any', 0.05, 0
+if a.mode == 'chalkcpt': a.cpt_chalk_sp = True
 _pit = [i for i in range(NP) if P[i]['kind'] == 'P']
 chalk_i = max(_pit, key=lambda i: own_all[i]) if _pit else None
-if a.mode != 'ceiling' or a.chalk_sp or a.cpt_max_own is not None or a.min_stack:
+if a.mode != 'ceiling' or a.cpt_chalk_sp or a.chalk_sp or a.cpt_max_own is not None or a.min_stack:
     print(f"CONSTRAINTS mode={a.mode}: chalk SP={P[chalk_i]['name'] if chalk_i is not None else None} ({100 * own_all[chalk_i]:.0f}% owned) slot={a.chalk_sp}  hitter-CPT share<{a.cpt_max_own}  min stack {a.min_stack}")
 Fmax = np.full(NS, -1e9, np.float32); F = np.zeros((NS, len(field)), np.int16)
 for j, (c, rest) in enumerate(field):
@@ -137,6 +150,7 @@ def valid(c, rest):
     if c in rest or len(set(rest)) < 5: return False
     s = cpt[c] + util[list(rest)].sum()
     if s > CAP or len({tm[c], *tm[list(rest)]}) != 2: return False
+    if a.cpt_chalk_sp and chalk_i is not None and c != chalk_i: return False
     if a.chalk_sp == 'util' and chalk_i is not None and chalk_i not in rest: return False
     if a.chalk_sp == 'any' and chalk_i is not None and chalk_i != c and chalk_i not in rest: return False
     if a.cpt_max_own is not None and (P[c]['kind'] != 'H' or own_cpt[c] >= a.cpt_max_own): return False

@@ -1,0 +1,22 @@
+{
+ "coef": [
+  -5.47998108441805,
+  1.711064359046402,
+  0.36452517725334127,
+  -0.5314028888694592,
+  0.12499349829118353,
+  0.062241142657209696,
+  1.1285826557775402
+ ],
+ "features": [
+  "1",
+  "log(sim DK mean)",
+  "log(util salary/1000)",
+  "is_pitcher",
+  "batting slot<=3",
+  "AvgPointsPerGame/10",
+  "cheap starting hitter (<=$4.6K)"
+ ],
+ "cpt_salary_exp": 2.5794319579060128,
+ "n_slates": 2
+}
